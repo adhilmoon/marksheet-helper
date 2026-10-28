@@ -65,8 +65,6 @@ class ExportView {
                 'Student Name',
                 ...topics.map(t => `${t.name}\n(Max: ${t.maxMarks})`),
                 'Total',
-                '%',
-                'Grade',
                 'Rank',
                 'Status'
             ]
@@ -85,8 +83,6 @@ class ExportView {
                 res.student.name,
                 ...markCells,
                 `${res.totalScored} / ${res.totalMax}`,
-                `${res.percentage}%`,
-                res.grade,
                 res.rank,
                 res.status
             ];
@@ -197,8 +193,6 @@ class ExportView {
             ...topics.map(t => `${t.name} (Max: ${t.maxMarks})`),
             'Total Scored',
             'Max Marks',
-            'Percentage (%)',
-            'Grade',
             'Rank',
             'Status'
         ];
@@ -220,8 +214,6 @@ class ExportView {
                 ...topicMarks,
                 res.totalScored,
                 res.totalMax,
-                res.percentage,
-                res.grade,
                 res.rank,
                 res.status
             ]);

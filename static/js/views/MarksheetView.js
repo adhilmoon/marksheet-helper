@@ -192,8 +192,6 @@ class MarksheetView {
                                 `;
                             }).join('')}
                             <th class="th-calc th-total">ആകെ</th>
-                            <th class="th-calc th-pct">%</th>
-                            <th class="th-calc th-grade">ഗ്രേഡ്</th>
                             <th class="th-calc th-rank">റാങ്ക്</th>
                             <th class="th-calc th-status">നില</th>
                             <th class="th-action">നീക്കം</th>
@@ -244,12 +242,6 @@ class MarksheetView {
                                     <td class="td-calc td-total font-mono" id="total-${st.id}">
                                         <strong>${res.hasAnyMark ? res.totalScored : '-'}</strong>
                                         <span class="text-muted">/${res.totalMax}</span>
-                                    </td>
-                                    <td class="td-calc td-pct font-mono" id="pct-${st.id}">
-                                        ${res.hasAnyMark ? res.percentage + '%' : '-'}
-                                    </td>
-                                    <td class="td-calc td-grade" id="grade-${st.id}">
-                                        ${res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-'}
                                     </td>
                                     <td class="td-calc td-rank font-mono" id="rank-${st.id}">
                                         ${res.hasAnyMark ? res.rank : '-'}
@@ -338,21 +330,9 @@ class MarksheetView {
 
                                 <div class="card-summary-bar">
                                     <div class="card-summary-item">
-                                        <span class="summary-label">ആകെ</span>
+                                        <span class="summary-label">ആകെ മാർക്ക്</span>
                                         <span class="summary-val font-mono" id="card-total-${st.id}">
                                             ${res.hasAnyMark ? `${res.totalScored}/${res.totalMax}` : '-'}
-                                        </span>
-                                    </div>
-                                    <div class="card-summary-item">
-                                        <span class="summary-label">ശതമാനം</span>
-                                        <span class="summary-val font-mono" id="card-pct-${st.id}">
-                                            ${res.hasAnyMark ? `${res.percentage}%` : '-'}
-                                        </span>
-                                    </div>
-                                    <div class="card-summary-item">
-                                        <span class="summary-label">ഗ്രേഡ്</span>
-                                        <span class="summary-val" id="card-grade-${st.id}">
-                                            ${res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-'}
                                         </span>
                                     </div>
                                     <div class="card-summary-item">
@@ -1387,27 +1367,19 @@ class MarksheetView {
 
             // Table view elements
             const totalCell = document.getElementById(`total-${studentId}`);
-            const pctCell = document.getElementById(`pct-${studentId}`);
-            const gradeCell = document.getElementById(`grade-${studentId}`);
             const rankCell = document.getElementById(`rank-${studentId}`);
             const statusCell = document.getElementById(`status-${studentId}`);
 
             if (totalCell) totalCell.innerHTML = `<strong>${res.hasAnyMark ? res.totalScored : '-'}</strong> <span class="text-muted">/${res.totalMax}</span>`;
-            if (pctCell) pctCell.innerText = res.hasAnyMark ? `${res.percentage}%` : '-';
-            if (gradeCell) gradeCell.innerHTML = res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-';
             if (rankCell) rankCell.innerText = res.hasAnyMark ? res.rank : '-';
             if (statusCell) statusCell.innerHTML = res.hasAnyMark ? `<span class="badge ${res.statusClass}">${res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു'}</span>` : '-';
 
             // Card view elements
             const cardTotal = document.getElementById(`card-total-${studentId}`);
-            const cardPct = document.getElementById(`card-pct-${studentId}`);
-            const cardGrade = document.getElementById(`card-grade-${studentId}`);
             const cardRank = document.getElementById(`card-rank-${studentId}`);
             const cardStatus = document.getElementById(`card-status-${studentId}`);
 
             if (cardTotal) cardTotal.innerText = res.hasAnyMark ? `${res.totalScored}/${res.totalMax}` : '-';
-            if (cardPct) cardPct.innerText = res.hasAnyMark ? `${res.percentage}%` : '-';
-            if (cardGrade) cardGrade.innerHTML = res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-';
             if (cardRank) cardRank.innerText = res.hasAnyMark ? res.rank : '-';
             if (cardStatus) {
                 cardStatus.className = `badge ${res.statusClass}`;
