@@ -823,6 +823,51 @@ body {
     box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
+/* Single-Topic Percentage Color Tiers */
+.mark-input.mark-excellent {
+    background-color: #dcfce7 !important;
+    border-color: #86efac !important;
+    color: #15803d !important;
+    font-weight: 700;
+}
+.mark-input.mark-excellent:focus {
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.3) !important;
+    border-color: #16a34a !important;
+}
+
+.mark-input.mark-good {
+    background-color: #dbeafe !important;
+    border-color: #93c5fd !important;
+    color: #1d4ed8 !important;
+    font-weight: 700;
+}
+.mark-input.mark-good:focus {
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3) !important;
+    border-color: #2563eb !important;
+}
+
+.mark-input.mark-pass {
+    background-color: #fef3c7 !important;
+    border-color: #fcd34d !important;
+    color: #b45309 !important;
+    font-weight: 600;
+}
+.mark-input.mark-pass:focus {
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.3) !important;
+    border-color: #d97706 !important;
+}
+
+.mark-input.mark-fail {
+    background-color: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+    color: #b91c1c !important;
+    font-weight: 700;
+}
+.mark-input.mark-fail:focus {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3) !important;
+    border-color: #dc2626 !important;
+}
+
 .td-calc {
     text-align: center;
     font-size: 0.85rem;
@@ -830,8 +875,49 @@ body {
 
 .sheet-quick-footer {
     margin-top: 0.75rem;
-    padding: 0 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--bg-surface);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
 }
+
+.marks-legend-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.legend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.legend-badge.legend-green { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.legend-badge.legend-blue  { background-color: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+.legend-badge.legend-amber { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+.legend-badge.legend-red   { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.legend-dot.green { background-color: #16a34a; }
+.legend-dot.blue  { background-color: #2563eb; }
+.legend-dot.amber { background-color: #d97706; }
+.legend-dot.red   { background-color: #dc2626; }
+
+.sheet-rules-hint {
+    padding-top: 0.25rem;
+    border-top: 1px dashed var(--border-color);
+}
+
 
 /* ==========================================================================
    Analytics Tab

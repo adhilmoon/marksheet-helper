@@ -136,14 +136,16 @@ class MarksheetView {
                         <tr>
                             <th class="th-roll">റോൾ</th>
                             <th class="th-name">വിദ്യാർത്ഥിയുടെ പേര്</th>
-                            ${topics.map((t, idx) => `
+                            ${topics.map((t, idx) => {
+                                const passMark = Math.ceil(Number(t.maxMarks) * (Number(cls.passPercentage) || 36) / 100);
+                                return `
                                 <th class="th-topic" data-topic-id="${t.id}" title="${t.name}">
                                     <div class="th-topic-inner">
                                         <span class="topic-name-header">${t.name}</span>
-                                        <span class="topic-max-badge">Max: ${t.maxMarks}</span>
+                                        <span class="topic-max-badge">Max: ${t.maxMarks} • Min: ${passMark}</span>
                                     </div>
                                 </th>
-                            `).join('')}
+                            `}).join('')}
                             <th class="th-calc th-total">ആകെ മാർക്ക്</th>
                             <th class="th-calc th-pct">%</th>
                             <th class="th-calc th-grade">ഗ്രേഡ്</th>
@@ -167,13 +169,18 @@ class MarksheetView {
                                         </div>
                                     </td>
                                     ${topics.map((t, colIdx) => {
-                                        const scoreObj = res.topicScores[t.id] || { value: '' };
+                                        const scoreObj = (res.topicScores && res.topicScores[t.id]) || { value: '', colorClass: '' };
                                         const val = scoreObj.value !== undefined ? scoreObj.value : '';
+                                        const colorClass = scoreObj.colorClass || '';
+                                        const passMark = Math.ceil(Number(t.maxMarks) * (Number(cls.passPercentage) || 36) / 100);
+                                        const tooltip = scoreObj.value !== '' 
+                                            ? `${t.name}: ${scoreObj.value}/${t.maxMarks} (${scoreObj.percentage}%) - ${scoreObj.isPassed ? 'പാസ്സ്' : 'തോറ്റു'}` 
+                                            : `${t.name} (Max: ${t.maxMarks}, Min: ${passMark})`;
                                         return `
                                             <td class="td-mark-input">
                                                 <input 
                                                     type="text" 
-                                                    class="mark-input" 
+                                                    class="mark-input ${colorClass}" 
                                                     value="${val}" 
                                                     data-student-id="${st.id}" 
                                                     data-topic-id="${t.id}"
@@ -183,6 +190,7 @@ class MarksheetView {
                                                     placeholder="-"
                                                     maxlength="4"
                                                     autocomplete="off"
+                                                    title="${tooltip}"
                                                 >
                                             </td>
                                         `;
@@ -214,9 +222,25 @@ class MarksheetView {
             </div>
 
             <div class="sheet-quick-footer">
-                <span class="text-muted font-sm">
-                    💡 നിർദ്ദേശം: ടാബിലോ എന്റർ കീയിലോ അമർത്തി അടുത്ത കോളത്തിലേക്കും റോയിലേക്കും വേഗത്തിൽ പോകാം. 'ab' എന്ന് അടിച്ചാൽ Absent ആയി രേഖപ്പെടുത്തും.
-                </span>
+                <div class="marks-legend-strip">
+                    <span class="legend-badge legend-green">
+                        <span class="legend-dot green"></span> 90%+ (പച്ച - Excellent)
+                    </span>
+                    <span class="legend-badge legend-blue">
+                        <span class="legend-dot blue"></span> 50% - 89% (നീല - Good)
+                    </span>
+                    <span class="legend-badge legend-amber">
+                        <span class="legend-dot amber"></span> 36% - 49% (പാസ്സ്)
+                    </span>
+                    <span class="legend-badge legend-red">
+                        <span class="legend-dot red"></span> 36% ൽ താഴെ / Ab (തോറ്റു)
+                    </span>
+                </div>
+                <div class="sheet-rules-hint">
+                    <span class="text-muted font-sm">
+                        💡 ഏതെങ്കിലും ഒരു വിഷയത്തിൽ 36% ൽ താഴെ മാർക്ക് വന്നാൽ (അല്ലെങ്കിൽ Absent ആയാൽ) ആ വിദ്യാർത്ഥി ആകെ ഫലത്തിൽ <strong>'തോറ്റു' (F)</strong> ആയി കണക്കാക്കും. ടാബിലോ എന്റർ കീയിലോ അമർത്തി അടുത്ത കോളത്തിലേക്കും റോയിലേക്കും പോകാം.
+                    </span>
+                </div>
             </div>
         `;
     }
@@ -636,6 +660,7 @@ class MarksheetView {
         const studentId = inputElem.getAttribute('data-student-id');
         const topicId = inputElem.getAttribute('data-topic-id');
         const maxMarks = Number(inputElem.getAttribute('data-max')) || 100;
+        const passPercentage = Number(this.currentClass.passPercentage) || 36;
         let rawVal = inputElem.value.trim();
 
         // Allow 'ab' for absent
@@ -657,6 +682,29 @@ class MarksheetView {
             rawVal = num;
         }
 
+        // Dynamically update the input element's color class immediately
+        inputElem.classList.remove('mark-fail', 'mark-pass', 'mark-good', 'mark-excellent');
+        if (rawVal === 'Ab') {
+            inputElem.classList.add('mark-fail');
+            inputElem.title = `Ab (Absent - തോറ്റു)`;
+        } else if (rawVal !== '') {
+            const num = Number(rawVal);
+            const pct = maxMarks > 0 ? (num / maxMarks) * 100 : 0;
+            const roundedPct = Math.round(pct * 10) / 10;
+            if (roundedPct >= 90) {
+                inputElem.classList.add('mark-excellent');
+            } else if (roundedPct >= 50) {
+                inputElem.classList.add('mark-good');
+            } else if (roundedPct >= passPercentage) {
+                inputElem.classList.add('mark-pass');
+            } else {
+                inputElem.classList.add('mark-fail');
+            }
+            inputElem.title = `${rawVal}/${maxMarks} (${roundedPct}%) - ${roundedPct >= passPercentage ? 'പാസ്സ്' : 'തോറ്റു'}`;
+        } else {
+            inputElem.title = '';
+        }
+
         // Save to StorageModel
         window.storageModel.updateStudentMark(this.currentClass.id, studentId, topicId, rawVal);
 
@@ -669,8 +717,8 @@ class MarksheetView {
             this.currentClass.marks[studentId][topicId] = rawVal;
         }
 
-        // Live recalculate student row
-        this._updateStudentRowDisplay(studentId);
+        // Live recalculate entire sheet rankings and student row displays
+        this._updateAllCalculations();
 
         // Flash autosave indicator
         const autoSave = document.getElementById('autosave-status');
@@ -682,34 +730,40 @@ class MarksheetView {
         }
     }
 
+    _updateAllCalculations() {
+        const students = this.currentClass.students || [];
+        const topics = this.currentClass.topics || [];
+        const passPct = Number(this.currentClass.passPercentage) || 36;
+        const results = window.marksheetModel.processSheet(students, topics, this.currentClass.marks, passPct);
+
+        results.forEach(res => {
+            const studentId = res.student.id;
+            const totalCell = document.getElementById(`total-${studentId}`);
+            const pctCell = document.getElementById(`pct-${studentId}`);
+            const gradeCell = document.getElementById(`grade-${studentId}`);
+            const rankCell = document.getElementById(`rank-${studentId}`);
+            const statusCell = document.getElementById(`status-${studentId}`);
+
+            if (totalCell) {
+                totalCell.innerHTML = `<strong>${res.hasAnyMark ? res.totalScored : '-'}</strong> <span class="text-muted">/${res.totalMax}</span>`;
+            }
+            if (pctCell) {
+                pctCell.innerText = res.hasAnyMark ? `${res.percentage}%` : '-';
+            }
+            if (gradeCell) {
+                gradeCell.innerHTML = res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-';
+            }
+            if (rankCell) {
+                rankCell.innerText = res.hasAnyMark ? res.rank : '-';
+            }
+            if (statusCell) {
+                statusCell.innerHTML = res.hasAnyMark ? `<span class="badge ${res.statusClass}">${res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു'}</span>` : '-';
+            }
+        });
+    }
+
     _updateStudentRowDisplay(studentId) {
-        const student = (this.currentClass.students || []).find(s => s.id === studentId);
-        if (!student) return;
-
-        const res = window.marksheetModel.computeStudentResult(
-            student,
-            this.currentClass.topics || [],
-            this.currentClass.marks,
-            this.currentClass.passPercentage
-        );
-
-        const totalCell = document.getElementById(`total-${studentId}`);
-        const pctCell = document.getElementById(`pct-${studentId}`);
-        const gradeCell = document.getElementById(`grade-${studentId}`);
-        const statusCell = document.getElementById(`status-${studentId}`);
-
-        if (totalCell) {
-            totalCell.innerHTML = `<strong>${res.hasAnyMark ? res.totalScored : '-'}</strong> <span class="text-muted">/${res.totalMax}</span>`;
-        }
-        if (pctCell) {
-            pctCell.innerText = res.hasAnyMark ? `${res.percentage}%` : '-';
-        }
-        if (gradeCell) {
-            gradeCell.innerHTML = res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-';
-        }
-        if (statusCell) {
-            statusCell.innerHTML = res.hasAnyMark ? `<span class="badge ${res.statusClass}">${res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു'}</span>` : '-';
-        }
+        this._updateAllCalculations();
     }
 
     _handleKeyboardNavigation(e) {

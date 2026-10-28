@@ -235,7 +235,7 @@ class DashboardView {
                                         class="form-control" 
                                         min="1" 
                                         max="100" 
-                                        value="${isEdit ? (classData.passPercentage || 40) : 40}"
+                                        value="${isEdit ? (classData.passPercentage || 36) : 36}"
                                     >
                                 </div>
                             </div>
@@ -352,7 +352,7 @@ class DashboardView {
                 const className = document.getElementById('modal-classname').value.trim();
                 const examName = document.getElementById('modal-examname').value.trim();
                 const academicYear = document.getElementById('modal-year').value.trim();
-                const passPercentage = Number(document.getElementById('modal-passpct').value) || 40;
+                const passPercentage = Number(document.getElementById('modal-passpct').value) || 36;
 
                 const topicRows = document.querySelectorAll('.topic-input-row');
                 const topics = [];

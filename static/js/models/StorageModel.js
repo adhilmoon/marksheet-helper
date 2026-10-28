@@ -190,7 +190,7 @@ class StorageModel {
                 className: classData.className || 'Class 1',
                 examName: classData.examName || 'Assessment Exam',
                 academicYear: classData.academicYear || new Date().getFullYear().toString(),
-                passPercentage: Number(classData.passPercentage) || 40,
+                passPercentage: Number(classData.passPercentage) || 36,
                 topics: classData.topics || [], // [{ id, name, maxMarks }]
                 students: classData.students || [], // [{ id, rollNo, name, gender: 'boy'|'girl' }]
                 marks: classData.marks || {}, // { studentId: { topicId: number } }
