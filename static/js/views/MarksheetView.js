@@ -1,12 +1,14 @@
 /**
  * MarksheetView.js
- * MVC - View Layer: Marksheet grid, Boys/Girls/Combined tabs, quick daily mark entry, inline navigation.
+ * MVC - View Layer: Mobile-First Marksheet, Sticky Table & Touch Cards View,
+ * 1-Click Excel/CSV Importer, and Gemini 1.5 Flash AI Photo Scanner.
  */
 
 class MarksheetView {
     constructor() {
         this.container = document.getElementById('app-root');
         this.activeTab = 'boys'; // 'boys' | 'girls' | 'all' | 'analytics'
+        this.viewMode = 'table'; // 'table' | 'cards' (mobile-first toggle)
         this.currentClass = null;
     }
 
@@ -22,12 +24,12 @@ class MarksheetView {
         const stats = window.marksheetModel.calculateStats(cls);
 
         this.container.innerHTML = `
-            <div class="app-layout">
+            <div class="app-layout mobile-optimized">
                 <!-- Top Breadcrumb & Navbar -->
                 <header class="navbar marksheet-navbar">
                     <div class="nav-left">
-                        <button class="btn btn-ghost btn-sm" id="btn-back-dashboard">
-                            ← ഡാഷ്‌ബോർഡിലേക്ക്
+                        <button class="btn btn-ghost btn-sm" id="btn-back-dashboard" title="ഡാഷ്‌ബോർഡ്">
+                            ← <span class="hide-mobile">ഡാഷ്‌ബോർഡിലേക്ക്</span>
                         </button>
                         <div class="nav-class-info">
                             <span class="nav-madrasa-sub">${cls.madrasaName || 'മദ്രസ / സ്കൂൾ'}</span>
@@ -35,48 +37,67 @@ class MarksheetView {
                         </div>
                     </div>
                     <div class="nav-actions">
-                        <div class="autosave-badge" id="autosave-status">
+                        <div class="autosave-badge hide-mobile" id="autosave-status">
                             <span class="save-dot"></span> സേവ് ആയി
                         </div>
-                        <button class="btn btn-outline btn-sm" id="btn-print-view" title="പ്രിന്റ് എടുക്കുക">
-                            🖨️ പ്രിന്റ്
+
+                        <!-- 1-Click Excel Import -->
+                        <button class="btn btn-outline btn-sm btn-action-excel" id="btn-import-excel" title="എക്സൽ ഫയലിൽ നിന്ന് മാർക്കുകൾ ചേർക്കുക">
+                            📥 <span class="action-btn-text">Excel ഇംപോർട്ട്</span>
                         </button>
-                        <button class="btn btn-outline btn-sm" id="btn-export-excel" title="എക്സൽ ഫയലായി ഡൗൺലോഡ് ചെയ്യുക">
-                            📊 Excel (.xlsx)
+
+                        <!-- Gemini Flash AI Photo Scan -->
+                        <button class="btn btn-outline btn-sm btn-action-ai" id="btn-scan-gemini" title="മാർക്ക്ഷീറ്റ് ഫോട്ടോ എടുത്ത് സ്വയം ചേർക്കുക (Gemini Flash AI)">
+                            📸 <span class="action-btn-text">AI ഫോട്ടോ സ്കാൻ</span>
                         </button>
-                        <button class="btn btn-primary btn-sm" id="btn-export-pdf" title="പിഡിഎഫ് റിപ്പോർട്ട് ഡൗൺലോഡ് ചെയ്യുക">
-                            📄 PDF ഡൗൺലോഡ്
+
+                        <!-- Export dropdown / buttons -->
+                        <button class="btn btn-outline btn-sm hide-mobile" id="btn-export-excel" title="Excel ഡൗൺലോഡ്">
+                            📊 Excel
+                        </button>
+                        <button class="btn btn-primary btn-sm btn-pdf-export" id="btn-export-pdf" title="PDF ഡൗൺലോഡ്">
+                            📄 <span class="hide-mobile">PDF ഡൗൺലോഡ്</span>
                         </button>
                     </div>
                 </header>
 
                 <main class="main-content marksheet-content">
-                    <!-- Class Details & Action Bar -->
+                    <!-- Class Details & Action Toolbar -->
                     <div class="marksheet-toolbar">
                         <div class="toolbar-left">
                             <!-- Sheets Tabs -->
-                            <div class="sheet-tabs">
+                            <div class="sheet-tabs scrollable-tabs">
                                 <button class="sheet-tab ${this.activeTab === 'boys' ? 'active' : ''}" data-tab="boys">
-                                    👦 ആൺകുട്ടികൾ (Boys) <span class="tab-badge">${boys.length}</span>
+                                    👦 ആൺകുട്ടികൾ <span class="tab-badge">${boys.length}</span>
                                 </button>
                                 <button class="sheet-tab ${this.activeTab === 'girls' ? 'active' : ''}" data-tab="girls">
-                                    👧 പെൺകുട്ടികൾ (Girls) <span class="tab-badge">${girls.length}</span>
+                                    👧 പെൺകുട്ടികൾ <span class="tab-badge">${girls.length}</span>
                                 </button>
                                 <button class="sheet-tab ${this.activeTab === 'all' ? 'active' : ''}" data-tab="all">
-                                    👥 എല്ലാവരും (All) <span class="tab-badge">${students.length}</span>
+                                    👥 എല്ലാവരും <span class="tab-badge">${students.length}</span>
                                 </button>
                                 <button class="sheet-tab ${this.activeTab === 'analytics' ? 'active' : ''}" data-tab="analytics">
-                                    📈 റിസൾട്ട് വിശകലനം
+                                    📈 റിസൾട്ട്
                                 </button>
                             </div>
                         </div>
 
                         <div class="toolbar-right">
+                            <!-- Mobile View Switcher (Table vs Touch Cards) -->
+                            <div class="view-mode-toggle" id="view-mode-group">
+                                <button type="button" class="btn-toggle ${this.viewMode === 'table' ? 'active' : ''}" id="btn-mode-table" title="പട്ടിക കാഴ്ച്ച">
+                                    📋 <span class="toggle-text">പട്ടിക</span>
+                                </button>
+                                <button type="button" class="btn-toggle ${this.viewMode === 'cards' ? 'active' : ''}" id="btn-mode-cards" title="കാർഡ് കാഴ്ച്ച (മൊബൈലിന് അനുയോജ്യം)">
+                                    📇 <span class="toggle-text">കാർഡുകൾ</span>
+                                </button>
+                            </div>
+
                             <button class="btn btn-outline btn-sm" id="btn-manage-topics">
                                 📚 വിഷയങ്ങൾ (${topics.length})
                             </button>
                             <button class="btn btn-primary btn-sm" id="btn-add-student">
-                                ＋ വിദ്യാർത്ഥിയെ ചേർക്കുക
+                                ＋ വിദ്യാർത്ഥി
                             </button>
                         </div>
                     </div>
@@ -85,20 +106,45 @@ class MarksheetView {
                     <div class="sheet-content-wrapper">
                         ${this.activeTab === 'analytics' 
                             ? this._renderAnalyticsTab(stats, cls) 
-                            : this._renderSheetTable(cls, stats)}
+                            : (this.viewMode === 'cards' 
+                                ? this._renderCardsView(cls, stats) 
+                                : this._renderSheetTable(cls, stats))}
                     </div>
                 </main>
+
+                <!-- Mobile Floating / Bottom Action Bar (Visible only on mobile devices) -->
+                <nav class="mobile-bottom-bar show-mobile-only">
+                    <button class="mobile-bar-btn" id="m-btn-excel" title="Excel ഇംപോർട്ട്">
+                        <span class="m-icon">📥</span>
+                        <span class="m-label">Excel</span>
+                    </button>
+                    <button class="mobile-bar-btn" id="m-btn-ai" title="AI ഫോട്ടോ സ്കാൻ">
+                        <span class="m-icon">📸</span>
+                        <span class="m-label">AI സ്കാൻ</span>
+                    </button>
+                    <button class="mobile-bar-btn active-highlight" id="m-btn-add-student" title="വിദ്യാർത്ഥിയെ ചേർക്കുക">
+                        <span class="m-icon">＋</span>
+                        <span class="m-label">കുട്ടി</span>
+                    </button>
+                    <button class="mobile-bar-btn" id="m-btn-toggle-view" title="കാഴ്ച്ച മാറ്റുക">
+                        <span class="m-icon">${this.viewMode === 'cards' ? '📋' : '📇'}</span>
+                        <span class="m-label">${this.viewMode === 'cards' ? 'പട്ടിക' : 'കാർഡ്'}</span>
+                    </button>
+                    <button class="mobile-bar-btn" id="m-btn-pdf" title="PDF ഡൗൺലോഡ്">
+                        <span class="m-icon">📄</span>
+                        <span class="m-label">PDF</span>
+                    </button>
+                </nav>
             </div>
 
-            <!-- Modals Placeholder -->
+            <!-- Modals Container -->
             <div id="modal-container"></div>
         `;
 
         this._bindEvents();
     }
 
-    _renderSheetTable(cls, stats) {
-        const topics = cls.topics || [];
+    _getStudentsToDisplay(cls, stats) {
         let studentsToDisplay = [];
         let sheetResults = [];
 
@@ -113,40 +159,39 @@ class MarksheetView {
             sheetResults = stats.allResults;
         }
 
+        return { studentsToDisplay, sheetResults };
+    }
+
+    _renderSheetTable(cls, stats) {
+        const topics = cls.topics || [];
+        const { studentsToDisplay, sheetResults } = this._getStudentsToDisplay(cls, stats);
+
         if (studentsToDisplay.length === 0) {
-            const genderLabel = this.activeTab === 'boys' ? 'ആൺകുട്ടികൾ' : (this.activeTab === 'girls' ? 'പെൺകുട്ടികൾ' : 'വിദ്യാർത്ഥികൾ');
-            return `
-                <div class="empty-state">
-                    <div class="empty-illustration">📝</div>
-                    <h4>${genderLabel} ആരെയും ചേർത്തിട്ടില്ല</h4>
-                    <p>വിദ്യാർത്ഥികളെ ചേർക്കാൻ മുകളിലെ '＋ വിദ്യാർത്ഥിയെ ചേർക്കുക' ബട്ടൺ ക്ലിക്ക് ചെയ്യുക.</p>
-                    <button class="btn btn-primary btn-sm" id="btn-empty-add-st">＋ പുതിയ വിദ്യാർത്ഥിയെ ചേർക്കുക</button>
-                </div>
-            `;
+            return this._renderEmptyState();
         }
 
-        // Map computed results by student ID for fast lookup
         const resultMap = {};
         sheetResults.forEach(r => { resultMap[r.student.id] = r; });
 
         return `
-            <div class="table-responsive-container">
+            <div class="table-responsive-container touch-scrollable">
                 <table class="marksheet-table" id="marksheet-grid">
                     <thead>
                         <tr>
-                            <th class="th-roll">റോൾ</th>
-                            <th class="th-name">വിദ്യാർത്ഥിയുടെ പേര്</th>
-                            ${topics.map((t, idx) => {
+                            <th class="th-roll sticky-col-1">റോൾ</th>
+                            <th class="th-name sticky-col-2">വിദ്യാർത്ഥിയുടെ പേര്</th>
+                            ${topics.map(t => {
                                 const passMark = Math.ceil(Number(t.maxMarks) * (Number(cls.passPercentage) || 36) / 100);
                                 return `
-                                <th class="th-topic" data-topic-id="${t.id}" title="${t.name}">
-                                    <div class="th-topic-inner">
-                                        <span class="topic-name-header">${t.name}</span>
-                                        <span class="topic-max-badge">Max: ${t.maxMarks} • Min: ${passMark}</span>
-                                    </div>
-                                </th>
-                            `}).join('')}
-                            <th class="th-calc th-total">ആകെ മാർക്ക്</th>
+                                    <th class="th-topic" data-topic-id="${t.id}" title="${t.name}">
+                                        <div class="th-topic-inner">
+                                            <span class="topic-name-header">${t.name}</span>
+                                            <span class="topic-max-badge">Max: ${t.maxMarks} • Min: ${passMark}</span>
+                                        </div>
+                                    </th>
+                                `;
+                            }).join('')}
+                            <th class="th-calc th-total">ആകെ</th>
                             <th class="th-calc th-pct">%</th>
                             <th class="th-calc th-grade">ഗ്രേഡ്</th>
                             <th class="th-calc th-rank">റാങ്ക്</th>
@@ -159,10 +204,10 @@ class MarksheetView {
                             const res = resultMap[st.id] || window.marksheetModel.computeStudentResult(st, topics, cls.marks, cls.passPercentage);
                             return `
                                 <tr class="student-row" data-student-id="${st.id}" data-row-idx="${rowIdx}">
-                                    <td class="td-roll">
+                                    <td class="td-roll sticky-col-1">
                                         <span class="roll-badge">${st.rollNo || (rowIdx + 1)}</span>
                                     </td>
-                                    <td class="td-name">
+                                    <td class="td-name sticky-col-2">
                                         <div class="student-name-box">
                                             <span class="st-gender-dot ${st.gender}"></span>
                                             <span class="st-name-text">${st.name}</span>
@@ -180,6 +225,7 @@ class MarksheetView {
                                             <td class="td-mark-input">
                                                 <input 
                                                     type="text" 
+                                                    inputmode="decimal"
                                                     class="mark-input ${colorClass}" 
                                                     value="${val}" 
                                                     data-student-id="${st.id}" 
@@ -221,13 +267,120 @@ class MarksheetView {
                 </table>
             </div>
 
+            ${this._renderQuickFooter()}
+        `;
+    }
+
+    _renderCardsView(cls, stats) {
+        const topics = cls.topics || [];
+        const { studentsToDisplay, sheetResults } = this._getStudentsToDisplay(cls, stats);
+
+        if (studentsToDisplay.length === 0) {
+            return this._renderEmptyState();
+        }
+
+        const resultMap = {};
+        sheetResults.forEach(r => { resultMap[r.student.id] = r; });
+
+        return `
+            <div class="student-cards-container">
+                <div class="student-cards-grid">
+                    ${studentsToDisplay.map((st, rowIdx) => {
+                        const res = resultMap[st.id] || window.marksheetModel.computeStudentResult(st, topics, cls.marks, cls.passPercentage);
+                        return `
+                            <div class="student-card" data-student-id="${st.id}">
+                                <div class="card-header">
+                                    <div class="card-header-left">
+                                        <span class="roll-badge">${st.rollNo || (rowIdx + 1)}</span>
+                                        <div>
+                                            <h4 class="card-student-name">${st.name}</h4>
+                                            <span class="student-gender-tag ${st.gender}">${st.gender === 'girl' ? '👧 പെൺകുട്ടി' : '👦 ആൺകുട്ടി'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-header-right">
+                                        <span class="badge ${res.statusClass}" id="card-status-${st.id}">
+                                            ${res.hasAnyMark ? (res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു') : '-'}
+                                        </span>
+                                        <button class="btn-icon btn-del-student" data-id="${st.id}" title="നീക്കം ചെയ്യുക">&times;</button>
+                                    </div>
+                                </div>
+
+                                <div class="card-scores-grid">
+                                    ${topics.map((t, colIdx) => {
+                                        const scoreObj = (res.topicScores && res.topicScores[t.id]) || { value: '', colorClass: '' };
+                                        const val = scoreObj.value !== undefined ? scoreObj.value : '';
+                                        const colorClass = scoreObj.colorClass || '';
+                                        const passMark = Math.ceil(Number(t.maxMarks) * (Number(cls.passPercentage) || 36) / 100);
+                                        return `
+                                            <div class="card-topic-field">
+                                                <div class="card-topic-meta">
+                                                    <span class="card-topic-name">${t.name}</span>
+                                                    <span class="card-topic-sub">Max: ${t.maxMarks} • Min: ${passMark}</span>
+                                                </div>
+                                                <input 
+                                                    type="text" 
+                                                    inputmode="decimal"
+                                                    class="mark-input ${colorClass}" 
+                                                    value="${val}" 
+                                                    data-student-id="${st.id}" 
+                                                    data-topic-id="${t.id}"
+                                                    data-max="${t.maxMarks}"
+                                                    data-row="${rowIdx}" 
+                                                    data-col="${colIdx}"
+                                                    placeholder="-"
+                                                    maxlength="4"
+                                                    autocomplete="off"
+                                                >
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+
+                                <div class="card-summary-bar">
+                                    <div class="card-summary-item">
+                                        <span class="summary-label">ആകെ</span>
+                                        <span class="summary-val font-mono" id="card-total-${st.id}">
+                                            ${res.hasAnyMark ? `${res.totalScored}/${res.totalMax}` : '-'}
+                                        </span>
+                                    </div>
+                                    <div class="card-summary-item">
+                                        <span class="summary-label">ശതമാനം</span>
+                                        <span class="summary-val font-mono" id="card-pct-${st.id}">
+                                            ${res.hasAnyMark ? `${res.percentage}%` : '-'}
+                                        </span>
+                                    </div>
+                                    <div class="card-summary-item">
+                                        <span class="summary-label">ഗ്രേഡ്</span>
+                                        <span class="summary-val" id="card-grade-${st.id}">
+                                            ${res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-'}
+                                        </span>
+                                    </div>
+                                    <div class="card-summary-item">
+                                        <span class="summary-label">റാങ്ക്</span>
+                                        <span class="summary-val font-mono" id="card-rank-${st.id}">
+                                            ${res.hasAnyMark ? res.rank : '-'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+
+            ${this._renderQuickFooter()}
+        `;
+    }
+
+    _renderQuickFooter() {
+        return `
             <div class="sheet-quick-footer">
                 <div class="marks-legend-strip">
                     <span class="legend-badge legend-green">
-                        <span class="legend-dot green"></span> 90%+ (പച്ച - Excellent)
+                        <span class="legend-dot green"></span> 90%+ (പച്ച)
                     </span>
                     <span class="legend-badge legend-blue">
-                        <span class="legend-dot blue"></span> 50% - 89% (നീല - Good)
+                        <span class="legend-dot blue"></span> 50% - 89% (നീല)
                     </span>
                     <span class="legend-badge legend-amber">
                         <span class="legend-dot amber"></span> 36% - 49% (പാസ്സ്)
@@ -238,8 +391,24 @@ class MarksheetView {
                 </div>
                 <div class="sheet-rules-hint">
                     <span class="text-muted font-sm">
-                        💡 ഏതെങ്കിലും ഒരു വിഷയത്തിൽ 36% ൽ താഴെ മാർക്ക് വന്നാൽ (അല്ലെങ്കിൽ Absent ആയാൽ) ആ വിദ്യാർത്ഥി ആകെ ഫലത്തിൽ <strong>'തോറ്റു' (F)</strong> ആയി കണക്കാക്കും. ടാബിലോ എന്റർ കീയിലോ അമർത്തി അടുത്ത കോളത്തിലേക്കും റോയിലേക്കും പോകാം.
+                        💡 ഏതെങ്കിലും ഒരു വിഷയത്തിൽ 36% ൽ താഴെ മാർക്ക് വന്നാൽ (അല്ലെങ്കിൽ Absent ആയാൽ) വിദ്യാർത്ഥി ആകെ ഫലത്തിൽ <strong>'തോറ്റു' (F)</strong> ആയി കണക്കാക്കും.
                     </span>
+                </div>
+            </div>
+        `;
+    }
+
+    _renderEmptyState() {
+        const genderLabel = this.activeTab === 'boys' ? 'ആൺകുട്ടികൾ' : (this.activeTab === 'girls' ? 'പെൺകുട്ടികൾ' : 'വിദ്യാർത്ഥികൾ');
+        return `
+            <div class="empty-state">
+                <div class="empty-illustration">📝</div>
+                <h4>${genderLabel} ആരെയും ചേർത്തിട്ടില്ല</h4>
+                <p>വിദ്യാർത്ഥികളെ ചേർക്കാൻ താഴെയുള്ള ഓപ്ഷനുകൾ ഉപയോഗിക്കുക:</p>
+                <div class="empty-actions-row">
+                    <button class="btn btn-primary btn-sm" id="btn-empty-add-st">＋ പുതിയ വിദ്യാർത്ഥി</button>
+                    <button class="btn btn-outline btn-sm" id="btn-empty-excel">📥 Excel ഫയൽ അപ്‌ലോഡ്</button>
+                    <button class="btn btn-outline btn-sm" id="btn-empty-ai">📸 AI ഫോട്ടോ സ്കാൻ</button>
                 </div>
             </div>
         `;
@@ -252,7 +421,7 @@ class MarksheetView {
                     <div class="stat-card">
                         <div class="stat-label">ആകെ വിദ്യാർത്ഥികൾ</div>
                         <div class="stat-value">${stats.totalStudents}</div>
-                        <div class="stat-sub">${stats.boysCount} ആൺകുട്ടികൾ • ${stats.girlsCount} പെൺകുട്ടികൾ</div>
+                        <div class="stat-sub">👦 ${stats.boysCount} ആൺ • 👧 ${stats.girlsCount} പെൺ</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">പാസ്സ് ശതമാനം</div>
@@ -260,69 +429,45 @@ class MarksheetView {
                         <div class="stat-sub">${stats.passedCount} പാസ്സായി • ${stats.failedCount} തോറ്റു</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">ശരാശരി മാർക്ക് (Class Avg)</div>
-                        <div class="stat-value">${stats.avgScore} <span class="font-sm text-muted">/ ${stats.totalMaxMarks}</span></div>
-                        <div class="stat-sub">ശരാശരി ${stats.avgPercentage}%</div>
+                        <div class="stat-label">ശരാശരി മാർക്ക്</div>
+                        <div class="stat-value font-mono">${stats.avgScore} <span class="font-sm text-muted">/ ${stats.totalMaxMarks}</span></div>
+                        <div class="stat-sub">ക്ലാസ് ശരാശരി: ${stats.avgPercentage}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">ആകെ വിഷയങ്ങൾ</div>
+                        <div class="stat-value">${stats.topicsCount}</div>
+                        <div class="stat-sub">പാസ്സ് മാർക്ക്: ${cls.passPercentage || 36}%</div>
                     </div>
                 </div>
 
-                <!-- Topic Breakdown -->
-                <div class="analytics-section">
-                    <h4 class="section-title">വിഷയ തിരിച്ചുള്ള വിശകലനം (Subject-Wise Statistics)</h4>
-                    <div class="topic-stats-grid">
-                        ${stats.topicStats.map(ts => `
-                            <div class="topic-stat-box">
-                                <div class="topic-stat-title">${ts.topic.name}</div>
-                                <div class="topic-stat-row">
-                                    <span>പരമാവധി മാർക്ക്:</span>
-                                    <strong>${ts.topic.maxMarks}</strong>
-                                </div>
-                                <div class="topic-stat-row">
-                                    <span>വിഷയ ശരാശരി:</span>
-                                    <strong class="text-primary">${ts.avg}</strong>
-                                </div>
-                                <div class="topic-stat-row">
-                                    <span>ഏറ്റവും ഉയർന്ന മാർക്ക്:</span>
-                                    <strong class="text-success">${ts.highest}</strong>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <!-- Top Rankers Table -->
-                <div class="analytics-section">
-                    <h4 class="section-title">റാങ്ക് പട്ടിക (Overall Rankings)</h4>
+                <div class="analytics-table-card">
+                    <h4 class="card-title">വിഷയം തിരിച്ചുള്ള വിശകലനം (Topic Breakdown)</h4>
                     <div class="table-responsive-container">
-                        <table class="marksheet-table">
+                        <table class="marksheet-table stats-table">
                             <thead>
                                 <tr>
-                                    <th>റാങ്ക്</th>
-                                    <th>റോൾ</th>
-                                    <th>വിദ്യാർത്ഥി</th>
-                                    <th>ലിംഗഭേദം</th>
-                                    <th>ആകെ മാർക്ക്</th>
-                                    <th>ശതമാനം</th>
-                                    <th>ഗ്രേഡ്</th>
-                                    <th>നില</th>
+                                    <th>വിഷയം</th>
+                                    <th>പരമാവധി മാർക്ക്</th>
+                                    <th>പാസ്സ് മാർക്ക്</th>
+                                    <th>ശരാശരി മാർക്ക്</th>
+                                    <th>ഏറ്റവും ഉയർന്ന മാർക്ക്</th>
+                                    <th>മാർക്ക് നൽകിയവർ</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${[...stats.allResults]
-                                    .filter(r => r.hasAnyMark)
-                                    .sort((a, b) => b.totalScored - a.totalScored)
-                                    .map(res => `
+                                ${stats.topicStats.map(ts => {
+                                    const minPass = Math.ceil(Number(ts.topic.maxMarks) * (Number(cls.passPercentage) || 36) / 100);
+                                    return `
                                         <tr>
-                                            <td><span class="rank-badge">${res.rank}</span></td>
-                                            <td>${res.student.rollNo}</td>
-                                            <td><strong>${res.student.name}</strong></td>
-                                            <td>${res.student.gender === 'boy' ? '👦 ആൺ' : '👧 പെൺ'}</td>
-                                            <td>${res.totalScored} / ${res.totalMax}</td>
-                                            <td>${res.percentage}%</td>
-                                            <td><span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span></td>
-                                            <td><span class="badge ${res.statusClass}">${res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു'}</span></td>
+                                            <td class="font-bold">${ts.topic.name}</td>
+                                            <td class="text-center font-mono">${ts.topic.maxMarks}</td>
+                                            <td class="text-center font-mono text-muted">${minPass}</td>
+                                            <td class="text-center font-mono">${ts.avg}</td>
+                                            <td class="text-center font-mono text-success"><strong>${ts.highest}</strong></td>
+                                            <td class="text-center font-mono">${ts.count}</td>
                                         </tr>
-                                    `).join('')}
+                                    `;
+                                }).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -331,35 +476,594 @@ class MarksheetView {
         `;
     }
 
-    // Modal for adding a student (Single or Bulk)
-    showAddStudentModal() {
+    // =========================================================================
+    // 1-Click Excel / CSV Importer Modal
+    // =========================================================================
+    showExcelImportModal() {
+        const cls = this.currentClass;
         const modalContainer = document.getElementById('modal-container');
-        const students = this.currentClass.students || [];
-        const nextRoll = students.length > 0 
-            ? (Math.max(...students.map(s => Number(s.rollNo) || 0)) + 1)
-            : 1;
+        if (!modalContainer) return;
 
         modalContainer.innerHTML = `
-            <div class="modal-backdrop">
-                <div class="modal-box">
+            <div class="modal-backdrop" id="excel-modal-backdrop">
+                <div class="modal-box modal-lg mobile-sheet">
                     <div class="modal-header">
-                        <h3 class="modal-title">വിദ്യാർത്ഥിയെ ചേർക്കുക</h3>
-                        <button class="btn-close" id="btn-close-st-modal">&times;</button>
-                    </div>
-
-                    <div class="modal-tabs">
-                        <button type="button" class="modal-tab active" id="tab-single-st">ഒറ്റയായി ചേർക്കുക</button>
-                        <button type="button" class="modal-tab" id="tab-bulk-st">കൂട്ടമായി ചേർക്കുക (Bulk Add)</button>
+                        <div>
+                            <h3 class="modal-title">📥 എക്സൽ / CSV ഇംപോർട്ട്</h3>
+                            <span class="field-hint">ഒറ്റ ക്ലിക്കിൽ എല്ലാ കുട്ടികളുടെയും മാർക്കുകൾ എക്സലിൽ നിന്ന് നേരിട്ട് ചേർക്കുക</span>
+                        </div>
+                        <button class="modal-close" id="btn-close-excel-modal">&times;</button>
                     </div>
 
                     <div class="modal-body">
-                        <!-- Single Student Form -->
-                        <form id="single-student-form">
-                            <div class="form-group">
-                                <label class="form-label">ലിംഗഭേദം (Gender) *</label>
+                        <!-- Top Instructions & Sample Downloader -->
+                        <div class="excel-import-top">
+                            <p class="font-sm text-secondary">
+                                റോൾ നമ്പർ, പേര്, ലിംഗം, വിഷയങ്ങളുടെ പേരുകൾ എന്നിവ ഉള്ള ഏത് Excel (.xlsx, .xls) അല്ലെങ്കിൽ .csv ഫയലും നൽകാം.
+                            </p>
+                            <button type="button" class="btn btn-outline btn-sm" id="btn-download-sample-excel">
+                                📄 മാതൃക Excel ഡൗൺലോഡ് (Template)
+                            </button>
+                        </div>
+
+                        <!-- Upload Dropzone Area -->
+                        <div class="upload-dropzone" id="excel-dropzone">
+                            <div class="dropzone-icon">📊</div>
+                            <h4 class="dropzone-title">Excel ഫയൽ ഇവിടെ ഡ്രോപ്പ് ചെയ്യുക</h4>
+                            <p class="dropzone-sub">അല്ലെങ്കിൽ ഫോണിൽ നിന്നോ കമ്പ്യൂട്ടറിൽ നിന്നോ തിരഞ്ഞെടുക്കുക</p>
+                            <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="display:none;">
+                            <button type="button" class="btn btn-primary btn-sm" id="btn-browse-excel">
+                                ഫയൽ തിരഞ്ഞെടുക്കുക
+                            </button>
+                        </div>
+
+                        <!-- Parsed Preview Area (Hidden initially) -->
+                        <div id="excel-preview-container" style="display: none; margin-top: 1.25rem;">
+                            <!-- Filled dynamically via _renderExcelPreview -->
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" id="btn-cancel-excel">റദ്ദാക്കുക</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirm-import-excel" disabled>
+                            ⚡ എല്ലാം മാർക്ക്ഷീറ്റിലേക്ക് ചേർക്കുക
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const closeModal = () => { modalContainer.innerHTML = ''; };
+        document.getElementById('btn-close-excel-modal').addEventListener('click', closeModal);
+        document.getElementById('btn-cancel-excel').addEventListener('click', closeModal);
+
+        // Download Template
+        document.getElementById('btn-download-sample-excel').addEventListener('click', () => {
+            this._downloadExcelTemplate(cls);
+        });
+
+        const fileInput = document.getElementById('excel-file-input');
+        const browseBtn = document.getElementById('btn-browse-excel');
+        const dropzone = document.getElementById('excel-dropzone');
+
+        browseBtn.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('click', (e) => {
+            if (e.target !== browseBtn) fileInput.click();
+        });
+
+        // Drag & drop
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                this._handleExcelFile(e.dataTransfer.files[0], cls);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                this._handleExcelFile(e.target.files[0], cls);
+            }
+        });
+    }
+
+    _downloadExcelTemplate(cls) {
+        const XLSX = window.XLSX;
+        if (!XLSX) {
+            alert('Excel ലൈബ്രറി ലഭ്യമല്ല.');
+            return;
+        }
+
+        const topics = cls.topics || [];
+        const headers = [
+            'Roll No',
+            'Student Name',
+            'Gender',
+            ...topics.map(t => `${t.name} (${t.maxMarks})`)
+        ];
+
+        const sampleRows = [
+            headers,
+            [1, 'മുഹമ്മദ് റയ്യാൻ', 'Boy', ...topics.map(t => Math.floor(t.maxMarks * 0.92))],
+            [2, 'ഫാത്തിമ സന', 'Girl', ...topics.map(t => Math.floor(t.maxMarks * 0.74))],
+            [3, 'അബ്ദുല്ല', 'Boy', ...topics.map(t => Math.floor(t.maxMarks * 0.48))],
+            [4, 'അഹ്‌മദ് കബീർ', 'Boy', ...topics.map(t => Math.floor(t.maxMarks * 0.32))]
+        ];
+
+        const ws = XLSX.utils.aoa_to_sheet(sampleRows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Marksheet Template');
+        const safeName = (cls.className || 'Class').replace(/\s+/g, '_');
+        XLSX.writeFile(wb, `${safeName}_Excel_Template.xlsx`);
+    }
+
+    _handleExcelFile(file, cls) {
+        const XLSX = window.XLSX;
+        if (!XLSX) {
+            alert('Excel parser ലഭ്യമല്ല.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+                if (!rawRows || rawRows.length < 2) {
+                    alert('എക്സൽ ഫയലിൽ ഡാറ്റ കണ്ടെത്തിയില്ല.');
+                    return;
+                }
+
+                // Detect header row
+                let headerRowIndex = 0;
+                for (let i = 0; i < Math.min(rawRows.length, 6); i++) {
+                    const rowStr = rawRows[i].join(' ').toLowerCase();
+                    if (rowStr.includes('name') || rowStr.includes('പേര്') || rowStr.includes('roll') || rowStr.includes('റോൾ') || rowStr.includes('student')) {
+                        headerRowIndex = i;
+                        break;
+                    }
+                }
+
+                const headerRow = rawRows[headerRowIndex];
+                let rollIdx = -1;
+                let nameIdx = -1;
+                let genderIdx = -1;
+                const topicCols = [];
+
+                headerRow.forEach((col, idx) => {
+                    const colStr = (col || '').toString().trim().toLowerCase();
+                    if (colStr.includes('roll') || colStr.includes('റോൾ') || colStr.includes('sl') || colStr === 'no') {
+                        rollIdx = idx;
+                    } else if (colStr.includes('name') || colStr.includes('പേര്') || colStr.includes('student')) {
+                        nameIdx = idx;
+                    } else if (colStr.includes('gender') || colStr.includes('ലിംഗം') || colStr.includes('sex')) {
+                        genderIdx = idx;
+                    } else if (col.toString().trim() !== '') {
+                        const rawName = col.toString().trim();
+                        let maxMarks = 50;
+                        const match = rawName.match(/\b(?:max|പരമാവധി)?\s*[:=]?\s*(\d+)/i) || rawName.match(/\((\d+)\)/);
+                        if (match && match[1]) maxMarks = Number(match[1]);
+                        const cleanName = rawName.replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim();
+                        topicCols.push({ colIdx: idx, name: cleanName || rawName, maxMarks });
+                    }
+                });
+
+                if (nameIdx === -1) {
+                    nameIdx = (rollIdx === 0) ? 1 : 0;
+                }
+
+                const parsedStudents = [];
+                const parsedMarks = {};
+
+                for (let i = headerRowIndex + 1; i < rawRows.length; i++) {
+                    const row = rawRows[i];
+                    if (!row || row.every(c => c === '' || c === undefined || c === null)) continue;
+
+                    const rollVal = (rollIdx !== -1 && row[rollIdx] !== undefined) ? row[rollIdx].toString().trim() : (parsedStudents.length + 1).toString();
+                    const nameVal = (nameIdx !== -1 && row[nameIdx] !== undefined) ? row[nameIdx].toString().trim() : `Student ${rollVal}`;
+                    const genderVal = (genderIdx !== -1 && row[genderIdx]) 
+                        ? (row[genderIdx].toString().toLowerCase().includes('g') || row[genderIdx].toString().includes('പെൺ') ? 'girl' : 'boy')
+                        : 'boy';
+
+                    if (!nameVal && !rollVal) continue;
+
+                    const tempId = 'temp_' + i;
+                    parsedStudents.push({
+                        _tempId: tempId,
+                        rollNo: rollVal,
+                        name: nameVal || `Student ${rollVal}`,
+                        gender: genderVal
+                    });
+
+                    parsedMarks[tempId] = {};
+                    topicCols.forEach(tc => {
+                        const rawMark = row[tc.colIdx];
+                        if (rawMark !== undefined && rawMark !== null && rawMark !== '') {
+                            const mStr = rawMark.toString().trim();
+                            if (mStr.toLowerCase() === 'ab' || mStr.toLowerCase() === 'a') {
+                                parsedMarks[tempId][tc.name] = 'Ab';
+                            } else {
+                                const num = Number(mStr);
+                                parsedMarks[tempId][tc.name] = isNaN(num) ? mStr : num;
+                            }
+                        }
+                    });
+                }
+
+                this.parsedExcelData = {
+                    students: parsedStudents,
+                    topics: topicCols,
+                    marks: parsedMarks
+                };
+
+                this._renderExcelPreview(this.parsedExcelData);
+
+            } catch (err) {
+                alert('എക്സൽ ഫയൽ വായിക്കുന്നതിൽ പിഴവ് സംഭവിച്ചു: ' + err.message);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    _renderExcelPreview({ students, topics, marks }) {
+        const previewContainer = document.getElementById('excel-preview-container');
+        const confirmBtn = document.getElementById('btn-confirm-import-excel');
+        if (!previewContainer) return;
+
+        previewContainer.style.display = 'block';
+        confirmBtn.disabled = false;
+
+        previewContainer.innerHTML = `
+            <div class="preview-badge-bar">
+                <span class="preview-count-chip">👥 ${students.length} വിദ്യാർത്ഥികൾ കണ്ടെത്തി</span>
+                <span class="preview-count-chip">📚 ${topics.length} വിഷയങ്ങൾ</span>
+            </div>
+
+            <div class="table-responsive-container preview-table-wrap">
+                <table class="marksheet-table stats-table font-sm">
+                    <thead>
+                        <tr>
+                            <th>റോൾ</th>
+                            <th>പേര്</th>
+                            <th>ലിംഗം</th>
+                            ${topics.map(t => `<th>${t.name}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${students.slice(0, 5).map(st => `
+                            <tr>
+                                <td>${st.rollNo}</td>
+                                <td><strong>${st.name}</strong></td>
+                                <td>${st.gender === 'girl' ? 'പെൺ' : 'ആൺ'}</td>
+                                ${topics.map(t => {
+                                    const val = marks[st._tempId]?.[t.name] ?? '-';
+                                    return `<td>${val}</td>`;
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            ${students.length > 5 ? `<p class="field-hint text-center mt-1">...കൂടാതെ ${students.length - 5} കുട്ടികൾ കൂടിയുണ്ട്</p>` : ''}
+        `;
+
+        confirmBtn.onclick = () => {
+            const res = window.marksheetController.importExcelData(this.currentClass.id, this.parsedExcelData);
+            if (res && res.success) {
+                alert(`✅ വിജയകരമായി ഇംപോർട്ട് ചെയ്തു!\n• ${res.addedCount} പുതിയ കുട്ടികളെ ചേർത്തു.\n• ${res.updatedCount} പേരുടെ മാർക്കുകൾ പുതുക്കി.`);
+                document.getElementById('modal-container').innerHTML = '';
+            }
+        };
+    }
+
+    // =========================================================================
+    // Gemini 1.5 Flash AI Photo / Sheet Scanner Modal
+    // =========================================================================
+    showGeminiScanModal() {
+        const cls = this.currentClass;
+        const modalContainer = document.getElementById('modal-container');
+        if (!modalContainer) return;
+
+        const savedKey = localStorage.getItem('marksheet_gemini_key') || '';
+
+        modalContainer.innerHTML = `
+            <div class="modal-backdrop" id="ai-modal-backdrop">
+                <div class="modal-box modal-lg mobile-sheet">
+                    <div class="modal-header">
+                        <div>
+                            <h3 class="modal-title">📸 Gemini Flash AI ഫോട്ടോ സ്കാനർ</h3>
+                            <span class="field-hint">മാർക്ക്ഷീറ്റ് അല്ലെങ്കിൽ പേപ്പർ ഫോട്ടോ എടുത്ത് കുട്ടികളുടെ വിവരങ്ങൾ സ്വയം വേർതിരിച്ചെടുക്കുക</span>
+                        </div>
+                        <button class="modal-close" id="btn-close-ai-modal">&times;</button>
+                    </div>
+
+                    <div class="modal-body">
+                        <!-- Gemini API Key configuration -->
+                        <div class="form-group mb-3">
+                            <div class="api-key-header">
+                                <label class="form-label mb-0">🔑 Gemini API Key</label>
+                                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="font-sm text-primary link-external">
+                                    സൗജന്യ API Key എടുക്കുക ↗
+                                </a>
+                            </div>
+                            <input 
+                                type="password" 
+                                id="input-gemini-key" 
+                                class="form-control font-mono" 
+                                placeholder="AIzaSy..." 
+                                value="${savedKey}"
+                            >
+                            <span class="field-hint">നിങ്ങളുടെ API കീ നിങ്ങളുടെ ബ്രൗസറിൽ മാത്രമേ സൂക്ഷിക്കപ്പെടൂ. തികച്ചും സുരക്ഷിതമാണ്.</span>
+                        </div>
+
+                        <!-- Image Capture / File Picker -->
+                        <div class="ai-capture-section">
+                            <div class="capture-buttons-row">
+                                <label class="btn btn-primary btn-sm flex-1 cursor-pointer">
+                                    📷 ക്യാമറ വഴി ഫോട്ടോ എടുക്കുക
+                                    <input type="file" id="ai-camera-input" accept="image/*" capture="environment" style="display:none;">
+                                </label>
+                                <label class="btn btn-outline btn-sm flex-1 cursor-pointer">
+                                    📁 ഗാലറിയിൽ നിന്ന് തിരഞ്ഞെടുക്കുക
+                                    <input type="file" id="ai-file-input" accept="image/*" style="display:none;">
+                                </label>
+                            </div>
+
+                            <!-- Preview of uploaded photo -->
+                            <div id="ai-photo-preview-wrap" style="display:none;" class="photo-preview-card mt-3">
+                                <img id="ai-preview-img" src="" alt="Marksheet preview" class="preview-img-tag">
+                                <div class="photo-meta-bar">
+                                    <span id="photo-file-name" class="font-sm font-bold"></span>
+                                    <button type="button" class="btn btn-primary btn-sm" id="btn-start-gemini-ocr">
+                                        ✨ Gemini AI വഴി എക്സ്ട്രാക്റ്റ് ചെയ്യുക
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Animated Loading Indicator -->
+                        <div id="ai-loading-box" style="display:none;" class="ai-loading-box">
+                            <div class="ai-pulse-spinner"></div>
+                            <h4 class="mt-2">ജെമിനി ഫ്ലാഷ് AI ചിത്രം പരിശോധിക്കുന്നു...</h4>
+                            <p class="font-sm text-muted">കുട്ടികളുടെ പേരും മാർക്കുകളും തരംതിരിക്കുന്നു, ദയവായി കാത്തിരിക്കുക.</p>
+                        </div>
+
+                        <!-- Extraction Results Preview -->
+                        <div id="ai-results-wrap" style="display:none; margin-top:1.25rem;"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" id="btn-cancel-ai">റദ്ദാക്കുക</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirm-import-ai" disabled>
+                            ⚡ മാർക്ക്ഷീറ്റിലേക്ക് ചേർക്കുക
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const closeModal = () => { modalContainer.innerHTML = ''; };
+        document.getElementById('btn-close-ai-modal').addEventListener('click', closeModal);
+        document.getElementById('btn-cancel-ai').addEventListener('click', closeModal);
+
+        const cameraInput = document.getElementById('ai-camera-input');
+        const fileInput = document.getElementById('ai-file-input');
+        const previewWrap = document.getElementById('ai-photo-preview-wrap');
+        const previewImg = document.getElementById('ai-preview-img');
+        const fileNameLabel = document.getElementById('photo-file-name');
+        const startBtn = document.getElementById('btn-start-gemini-ocr');
+        const keyInput = document.getElementById('input-gemini-key');
+
+        let selectedBase64 = null;
+        let selectedMimeType = 'image/jpeg';
+
+        const handleImageSelection = (file) => {
+            if (!file) return;
+            selectedMimeType = file.type || 'image/jpeg';
+            fileNameLabel.innerText = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedBase64 = e.target.result;
+                previewImg.src = selectedBase64;
+                previewWrap.style.display = 'block';
+                document.getElementById('ai-results-wrap').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        };
+
+        cameraInput.addEventListener('change', (e) => handleImageSelection(e.target.files[0]));
+        fileInput.addEventListener('change', (e) => handleImageSelection(e.target.files[0]));
+
+        startBtn.addEventListener('click', async () => {
+            const apiKey = keyInput.value.trim();
+            if (!apiKey) {
+                alert('ദയവായി Gemini API Key നൽകുക. മുകളിലുള്ള ലിങ്ക് വഴി സൗജന്യമായി കീ എടുക്കാം.');
+                keyInput.focus();
+                return;
+            }
+            localStorage.setItem('marksheet_gemini_key', apiKey);
+
+            if (!selectedBase64) {
+                alert('ദയവായി ഒരു ചിത്രം തിരഞ്ഞെടുക്കുക.');
+                return;
+            }
+
+            const loadingBox = document.getElementById('ai-loading-box');
+            const resultsWrap = document.getElementById('ai-results-wrap');
+            const confirmBtn = document.getElementById('btn-confirm-import-ai');
+
+            loadingBox.style.display = 'block';
+            resultsWrap.style.display = 'none';
+            confirmBtn.disabled = true;
+
+            try {
+                const extractedStudents = await this._runGeminiExtraction(selectedBase64, selectedMimeType, apiKey);
+                loadingBox.style.display = 'none';
+
+                if (!Array.isArray(extractedStudents) || extractedStudents.length === 0) {
+                    alert('ചിത്രത്തിൽ നിന്ന് വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ വേർതിരിച്ചെടുക്കാൻ കഴിഞ്ഞില്ല. ചിത്രം കൂടുതൽ വ്യക്തതയോടെ വീണ്ടും എടുക്കുക.');
+                    return;
+                }
+
+                this.parsedGeminiData = extractedStudents;
+                this._renderGeminiPreview(extractedStudents);
+            } catch (err) {
+                loadingBox.style.display = 'none';
+                alert('AI എക്സ്ട്രാക്ഷനിൽ പിഴവ് സംഭവിച്ചു: ' + err.message);
+            }
+        });
+    }
+
+    async _runGeminiExtraction(imageBase64, mimeType, apiKey) {
+        // Try backend proxy first if available
+        try {
+            const res = await fetch('/api/gemini-extract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Gemini-Key': apiKey },
+                body: JSON.stringify({ image: imageBase64, mimeType, apiKey })
+            });
+            const json = await res.json();
+            if (json.success && Array.isArray(json.students)) {
+                return json.students;
+            }
+        } catch (e) {
+            console.warn('Backend proxy failed, using direct client call...', e);
+        }
+
+        // Direct browser call to Google Generative Language REST API
+        const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+        const prompt = `You are an expert OCR marksheet parser for madrasas and schools. Analyze this marksheet / student list image carefully. Extract all students and their subject marks into a JSON array with this exact structure: [{"rollNo": "1", "name": "Student Name (in Malayalam or English)", "gender": "boy", "marks": {"Subject1": 45, "Subject2": 38}}]. If only student names are listed without marks, leave marks as {}. Return ONLY the valid JSON array without markdown backticks.`;
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const payload = {
+            contents: [
+                {
+                    parts: [
+                        { text: prompt },
+                        { inline_data: { mime_type: mimeType, data: cleanBase64 } }
+                    ]
+                }
+            ],
+            generationConfig: {
+                temperature: 0.1,
+                response_mime_type: "application/json"
+            }
+        };
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errBody = await response.text();
+            throw new Error(`Google API Error (${response.status}): ${errBody}`);
+        }
+
+        const data = await response.json();
+        let textContent = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        if (textContent.startsWith('```')) {
+            textContent = textContent.replace(/```json/g, '').replace(/```/g, '').trim();
+        }
+
+        return JSON.parse(textContent);
+    }
+
+    _renderGeminiPreview(studentsList) {
+        const resultsWrap = document.getElementById('ai-results-wrap');
+        const confirmBtn = document.getElementById('btn-confirm-import-ai');
+        if (!resultsWrap) return;
+
+        resultsWrap.style.display = 'block';
+        confirmBtn.disabled = false;
+
+        resultsWrap.innerHTML = `
+            <div class="preview-badge-bar">
+                <span class="preview-count-chip text-success">✨ ${studentsList.length} വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ AI കണ്ടെത്തി</span>
+            </div>
+
+            <div class="table-responsive-container preview-table-wrap">
+                <table class="marksheet-table stats-table font-sm">
+                    <thead>
+                        <tr>
+                            <th>റോൾ</th>
+                            <th>പേര്</th>
+                            <th>ലിംഗം</th>
+                            <th>മാർക്കുകൾ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${studentsList.map(st => `
+                            <tr>
+                                <td>${st.rollNo || '-'}</td>
+                                <td><strong>${st.name}</strong></td>
+                                <td>${st.gender === 'girl' ? 'പെൺ' : 'ആൺ'}</td>
+                                <td class="font-mono">
+                                    ${st.marks && Object.keys(st.marks).length > 0 
+                                        ? Object.entries(st.marks).map(([k, v]) => `${k}: ${v}`).join(', ') 
+                                        : '<span class="text-muted">(മാർക്കുകളില്ല)</span>'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        confirmBtn.onclick = () => {
+            const res = window.marksheetController.importGeminiData(this.currentClass.id, this.parsedGeminiData);
+            if (res && res.success) {
+                alert(`✅ AI ഡാറ്റ വിജയകരമായി ചേർത്തു!\n• ${res.addedCount} പുതിയ കുട്ടികളെ ചേർത്തു.\n• ${res.updatedCount} കുട്ടികളുടെ മാർക്കുകൾ പുതുക്കി.`);
+                document.getElementById('modal-container').innerHTML = '';
+            }
+        };
+    }
+
+    // =========================================================================
+    // Manage Topics & Add Student Modals
+    // =========================================================================
+    showAddStudentModal() {
+        const cls = this.currentClass;
+        const modalContainer = document.getElementById('modal-container');
+        if (!modalContainer) return;
+
+        const nextRoll = ((cls.students || []).length + 1).toString();
+
+        modalContainer.innerHTML = `
+            <div class="modal-backdrop" id="add-student-modal-backdrop">
+                <div class="modal-box mobile-sheet">
+                    <div class="modal-header">
+                        <h3 class="modal-title">വിദ്യാർത്ഥിയെ ചേർക്കുക</h3>
+                        <button class="modal-close" id="btn-close-st-modal">&times;</button>
+                    </div>
+                    <form id="add-student-form">
+                        <div class="modal-body">
+                            <div class="form-row">
+                                <div class="form-group" style="max-width: 120px;">
+                                    <label class="form-label">റോൾ നമ്പർ</label>
+                                    <input type="text" id="modal-roll" class="form-control" value="${nextRoll}" required>
+                                </div>
+                                <div class="form-group flex-1">
+                                    <label class="form-label">വിദ്യാർത്ഥിയുടെ പേര്</label>
+                                    <input type="text" id="modal-name" class="form-control" placeholder="മുഹമ്മദ് റയ്യാൻ" required autofocus>
+                                </div>
+                            </div>
+                            <div class="form-group mt-2">
+                                <label class="form-label">ലിംഗം (Gender)</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="st-gender" value="boy" ${this.activeTab === 'girls' ? '' : 'checked'}>
+                                        <input type="radio" name="st-gender" value="boy" ${this.activeTab !== 'girls' ? 'checked' : ''}>
                                         <span>👦 ആൺകുട്ടി (Boy)</span>
                                     </label>
                                     <label class="radio-label">
@@ -368,134 +1072,55 @@ class MarksheetView {
                                     </label>
                                 </div>
                             </div>
-
-                            <div class="form-row">
-                                <div class="form-group flex-1">
-                                    <label class="form-label">റോൾ നമ്പർ (Roll No) *</label>
-                                    <input type="number" id="st-roll" class="form-control" value="${nextRoll}" required>
-                                </div>
-                                <div class="form-group flex-2">
-                                    <label class="form-label">വിദ്യാർത്ഥിയുടെ പേര് (Name) *</label>
-                                    <input type="text" id="st-name" class="form-control" placeholder="ഉദാ: മുഹമ്മദ് സിനാൻ" required autofocus>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">ചേർക്കുക</button>
-                        </form>
-
-                        <!-- Bulk Add Form -->
-                        <form id="bulk-student-form" style="display:none;">
-                            <div class="form-group">
-                                <label class="form-label">ലിംഗഭേദം (Gender for these students) *</label>
-                                <div class="radio-group">
-                                    <label class="radio-label">
-                                        <input type="radio" name="bulk-gender" value="boy" ${this.activeTab === 'girls' ? '' : 'checked'}>
-                                        <span>👦 ആൺകുട്ടികൾ (Boys)</span>
-                                    </label>
-                                    <label class="radio-label">
-                                        <input type="radio" name="bulk-gender" value="girl" ${this.activeTab === 'girls' ? 'checked' : ''}>
-                                        <span>👧 പെൺകുട്ടികൾ (Girls)</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">തുടക്ക റോൾ നമ്പർ (Starting Roll No)</label>
-                                <input type="number" id="bulk-start-roll" class="form-control" value="${nextRoll}" style="max-width:140px;">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">പേരുകൾ നൽകുക (ഓരോ വരിയിലും ഓരോ പേര്) *</label>
-                                <textarea id="bulk-names" class="form-control" rows="6" placeholder="മുഹമ്മദ് ഫാസിൽ&#10;അബ്ദുല്ല&#10;മുഹമ്മദ് റയ്യാൻ"></textarea>
-                                <span class="field-hint">ഓരോ വരിയിലുമുള്ള പേര് ഓരോ കുട്ടിയായി ചേർക്കപ്പെടും.</span>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">എല്ലാവരെയും ഒന്നിച്ച് ചേർക്കുക</button>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-ghost" id="btn-cancel-st">റദ്ദാക്കുക</button>
+                            <button type="submit" class="btn btn-primary">ചേർക്കുക</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         `;
 
         const closeModal = () => { modalContainer.innerHTML = ''; };
         document.getElementById('btn-close-st-modal').addEventListener('click', closeModal);
+        document.getElementById('btn-cancel-st').addEventListener('click', closeModal);
 
-        const singleTab = document.getElementById('tab-single-st');
-        const bulkTab = document.getElementById('tab-bulk-st');
-        const singleForm = document.getElementById('single-student-form');
-        const bulkForm = document.getElementById('bulk-student-form');
-
-        singleTab.addEventListener('click', () => {
-            singleTab.classList.add('active');
-            bulkTab.classList.remove('active');
-            singleForm.style.display = 'block';
-            bulkForm.style.display = 'none';
-        });
-
-        bulkTab.addEventListener('click', () => {
-            bulkTab.classList.add('active');
-            singleTab.classList.remove('active');
-            singleForm.style.display = 'none';
-            bulkForm.style.display = 'block';
-        });
-
-        singleForm.addEventListener('submit', (e) => {
+        document.getElementById('add-student-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const roll = document.getElementById('st-roll').value.trim();
-            const name = document.getElementById('st-name').value.trim();
+            const rollNo = document.getElementById('modal-roll').value.trim();
+            const name = document.getElementById('modal-name').value.trim();
             const gender = document.querySelector('input[name="st-gender"]:checked').value;
 
             if (name) {
-                window.marksheetController.addStudent(this.currentClass.id, {
-                    rollNo: roll,
-                    name,
-                    gender
-                });
+                window.marksheetController.addStudent(cls.id, { rollNo, name, gender });
                 closeModal();
             }
         });
-
-        bulkForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const rawNames = document.getElementById('bulk-names').value.trim();
-            const gender = document.querySelector('input[name="bulk-gender"]:checked').value;
-            let startRoll = Number(document.getElementById('bulk-start-roll').value) || nextRoll;
-
-            if (!rawNames) return;
-
-            const lines = rawNames.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            const newStudents = lines.map(name => {
-                const s = {
-                    rollNo: startRoll.toString(),
-                    name,
-                    gender
-                };
-                startRoll++;
-                return s;
-            });
-
-            window.marksheetController.addBulkStudents(this.currentClass.id, newStudents);
-            closeModal();
-        });
     }
 
-    // Modal to Manage Topics / Subjects
     showManageTopicsModal() {
-        const modalContainer = document.getElementById('modal-container');
         const cls = this.currentClass;
+        const modalContainer = document.getElementById('modal-container');
+        if (!modalContainer) return;
+
         const topics = cls.topics || [];
 
         modalContainer.innerHTML = `
-            <div class="modal-backdrop">
-                <div class="modal-box modal-lg">
+            <div class="modal-backdrop" id="topics-modal-backdrop">
+                <div class="modal-box modal-lg mobile-sheet">
                     <div class="modal-header">
                         <h3 class="modal-title">വിഷയങ്ങൾ ക്രമീകരിക്കുക (Manage Topics)</h3>
-                        <button class="btn-close" id="btn-close-topics-modal">&times;</button>
+                        <button class="modal-close" id="btn-close-topics-modal">&times;</button>
                     </div>
                     <form id="manage-topics-form">
                         <div class="modal-body">
-                            <p class="text-muted">
-                                ഇവിടെ ചേർക്കുന്ന വിഷയങ്ങൾ മാർക്ക്ഷീറ്റിൽ കോളങ്ങളായി വരുന്നതാണ്.
-                            </p>
-                            
+                            <span class="field-hint mb-3" style="display:block;">
+                                വിഷയങ്ങളുടെ പേരും പരമാവധി മാർക്കും (Max Mark) ക്രമീകരിക്കുക.
+                            </span>
+
                             <div class="topic-rows-container" id="modal-topics-list">
-                                ${topics.map((t, idx) => `
+                                ${topics.map(t => `
                                     <div class="topic-input-row" data-topic-id="${t.id}">
                                         <input 
                                             type="text" 
@@ -592,11 +1217,54 @@ class MarksheetView {
             });
         });
 
+        // View Mode Switcher (Table vs Touch Cards)
+        const modeTable = document.getElementById('btn-mode-table');
+        const modeCards = document.getElementById('btn-mode-cards');
+        if (modeTable) {
+            modeTable.addEventListener('click', () => {
+                this.viewMode = 'table';
+                this.render(this.currentClass);
+            });
+        }
+        if (modeCards) {
+            modeCards.addEventListener('click', () => {
+                this.viewMode = 'cards';
+                this.render(this.currentClass);
+            });
+        }
+
+        // Excel Import Button
+        const excelBtn = document.getElementById('btn-import-excel');
+        const mExcelBtn = document.getElementById('m-btn-excel');
+        const emptyExcelBtn = document.getElementById('btn-empty-excel');
+        if (excelBtn) excelBtn.addEventListener('click', () => this.showExcelImportModal());
+        if (mExcelBtn) mExcelBtn.addEventListener('click', () => this.showExcelImportModal());
+        if (emptyExcelBtn) emptyExcelBtn.addEventListener('click', () => this.showExcelImportModal());
+
+        // Gemini AI Photo Scan Button
+        const aiBtn = document.getElementById('btn-scan-gemini');
+        const mAiBtn = document.getElementById('m-btn-ai');
+        const emptyAiBtn = document.getElementById('btn-empty-ai');
+        if (aiBtn) aiBtn.addEventListener('click', () => this.showGeminiScanModal());
+        if (mAiBtn) mAiBtn.addEventListener('click', () => this.showGeminiScanModal());
+        if (emptyAiBtn) emptyAiBtn.addEventListener('click', () => this.showGeminiScanModal());
+
         // Add Student buttons
         const addStBtn = document.getElementById('btn-add-student');
+        const mAddStBtn = document.getElementById('m-btn-add-student');
         const emptyAddStBtn = document.getElementById('btn-empty-add-st');
         if (addStBtn) addStBtn.addEventListener('click', () => this.showAddStudentModal());
+        if (mAddStBtn) mAddStBtn.addEventListener('click', () => this.showAddStudentModal());
         if (emptyAddStBtn) emptyAddStBtn.addEventListener('click', () => this.showAddStudentModal());
+
+        // Mobile bottom view toggle
+        const mToggleView = document.getElementById('m-btn-toggle-view');
+        if (mToggleView) {
+            mToggleView.addEventListener('click', () => {
+                this.viewMode = this.viewMode === 'cards' ? 'table' : 'cards';
+                this.render(this.currentClass);
+            });
+        }
 
         // Manage Topics button
         const manageTopBtn = document.getElementById('btn-manage-topics');
@@ -604,25 +1272,12 @@ class MarksheetView {
 
         // Export Actions
         const btnPdf = document.getElementById('btn-export-pdf');
-        if (btnPdf) {
-            btnPdf.addEventListener('click', () => {
-                window.exportView.exportPDF(this.currentClass, this.activeTab);
-            });
-        }
+        const mBtnPdf = document.getElementById('m-btn-pdf');
+        if (btnPdf) btnPdf.addEventListener('click', () => window.exportView.exportPDF(this.currentClass, this.activeTab));
+        if (mBtnPdf) mBtnPdf.addEventListener('click', () => window.exportView.exportPDF(this.currentClass, this.activeTab));
 
         const btnExcel = document.getElementById('btn-export-excel');
-        if (btnExcel) {
-            btnExcel.addEventListener('click', () => {
-                window.exportView.exportExcel(this.currentClass, this.activeTab);
-            });
-        }
-
-        const btnPrint = document.getElementById('btn-print-view');
-        if (btnPrint) {
-            btnPrint.addEventListener('click', () => {
-                window.exportView.triggerPrint();
-            });
-        }
+        if (btnExcel) btnExcel.addEventListener('click', () => window.exportView.exportExcel(this.currentClass, this.activeTab));
 
         // Delete student buttons
         document.querySelectorAll('.btn-del-student').forEach(btn => {
@@ -634,22 +1289,17 @@ class MarksheetView {
             });
         });
 
-        // ==========================================
-        // Daily Inline Mark Inputs & Keyboard Navigation
-        // ==========================================
+        // Daily Inline Mark Inputs & Keyboard / Touch Navigation
         const markInputs = document.querySelectorAll('.mark-input');
         markInputs.forEach(input => {
-            // Live update on input or change
             input.addEventListener('input', (e) => {
                 this._handleMarkInput(e.target);
             });
 
-            // Keyboard navigation for lightning-fast daily entry
             input.addEventListener('keydown', (e) => {
                 this._handleKeyboardNavigation(e);
             });
 
-            // Auto-select text on focus
             input.addEventListener('focus', (e) => {
                 e.target.select();
             });
@@ -663,7 +1313,6 @@ class MarksheetView {
         const passPercentage = Number(this.currentClass.passPercentage) || 36;
         let rawVal = inputElem.value.trim();
 
-        // Allow 'ab' for absent
         if (rawVal.toLowerCase() === 'ab' || rawVal.toLowerCase() === 'a') {
             rawVal = 'Ab';
             inputElem.value = 'Ab';
@@ -672,7 +1321,6 @@ class MarksheetView {
             if (isNaN(num)) {
                 num = 0;
             } else if (num > maxMarks) {
-                // Flash alert or cap
                 num = maxMarks;
                 inputElem.value = num;
             } else if (num < 0) {
@@ -682,7 +1330,7 @@ class MarksheetView {
             rawVal = num;
         }
 
-        // Dynamically update the input element's color class immediately
+        // Live visual color tier transition
         inputElem.classList.remove('mark-fail', 'mark-pass', 'mark-good', 'mark-excellent');
         if (rawVal === 'Ab') {
             inputElem.classList.add('mark-fail');
@@ -705,10 +1353,9 @@ class MarksheetView {
             inputElem.title = '';
         }
 
-        // Save to StorageModel
+        // Save mark
         window.storageModel.updateStudentMark(this.currentClass.id, studentId, topicId, rawVal);
 
-        // Update local object
         if (!this.currentClass.marks) this.currentClass.marks = {};
         if (!this.currentClass.marks[studentId]) this.currentClass.marks[studentId] = {};
         if (rawVal === '') {
@@ -717,10 +1364,9 @@ class MarksheetView {
             this.currentClass.marks[studentId][topicId] = rawVal;
         }
 
-        // Live recalculate entire sheet rankings and student row displays
+        // Synchronize both table and card views
         this._updateAllCalculations();
 
-        // Flash autosave indicator
         const autoSave = document.getElementById('autosave-status');
         if (autoSave) {
             autoSave.innerHTML = `<span class="save-dot saving"></span> സൂക്ഷിക്കുന്നു...`;
@@ -738,32 +1384,36 @@ class MarksheetView {
 
         results.forEach(res => {
             const studentId = res.student.id;
+
+            // Table view elements
             const totalCell = document.getElementById(`total-${studentId}`);
             const pctCell = document.getElementById(`pct-${studentId}`);
             const gradeCell = document.getElementById(`grade-${studentId}`);
             const rankCell = document.getElementById(`rank-${studentId}`);
             const statusCell = document.getElementById(`status-${studentId}`);
 
-            if (totalCell) {
-                totalCell.innerHTML = `<strong>${res.hasAnyMark ? res.totalScored : '-'}</strong> <span class="text-muted">/${res.totalMax}</span>`;
-            }
-            if (pctCell) {
-                pctCell.innerText = res.hasAnyMark ? `${res.percentage}%` : '-';
-            }
-            if (gradeCell) {
-                gradeCell.innerHTML = res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-';
-            }
-            if (rankCell) {
-                rankCell.innerText = res.hasAnyMark ? res.rank : '-';
-            }
-            if (statusCell) {
-                statusCell.innerHTML = res.hasAnyMark ? `<span class="badge ${res.statusClass}">${res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു'}</span>` : '-';
+            if (totalCell) totalCell.innerHTML = `<strong>${res.hasAnyMark ? res.totalScored : '-'}</strong> <span class="text-muted">/${res.totalMax}</span>`;
+            if (pctCell) pctCell.innerText = res.hasAnyMark ? `${res.percentage}%` : '-';
+            if (gradeCell) gradeCell.innerHTML = res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-';
+            if (rankCell) rankCell.innerText = res.hasAnyMark ? res.rank : '-';
+            if (statusCell) statusCell.innerHTML = res.hasAnyMark ? `<span class="badge ${res.statusClass}">${res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു'}</span>` : '-';
+
+            // Card view elements
+            const cardTotal = document.getElementById(`card-total-${studentId}`);
+            const cardPct = document.getElementById(`card-pct-${studentId}`);
+            const cardGrade = document.getElementById(`card-grade-${studentId}`);
+            const cardRank = document.getElementById(`card-rank-${studentId}`);
+            const cardStatus = document.getElementById(`card-status-${studentId}`);
+
+            if (cardTotal) cardTotal.innerText = res.hasAnyMark ? `${res.totalScored}/${res.totalMax}` : '-';
+            if (cardPct) cardPct.innerText = res.hasAnyMark ? `${res.percentage}%` : '-';
+            if (cardGrade) cardGrade.innerHTML = res.hasAnyMark ? `<span class="grade-pill" style="border-color:${res.gradeColor}; color:${res.gradeColor}">${res.grade}</span>` : '-';
+            if (cardRank) cardRank.innerText = res.hasAnyMark ? res.rank : '-';
+            if (cardStatus) {
+                cardStatus.className = `badge ${res.statusClass}`;
+                cardStatus.innerText = res.hasAnyMark ? (res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു') : '-';
             }
         });
-    }
-
-    _updateStudentRowDisplay(studentId) {
-        this._updateAllCalculations();
     }
 
     _handleKeyboardNavigation(e) {

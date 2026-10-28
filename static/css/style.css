@@ -1087,6 +1087,416 @@ body {
 .backup-card p { font-size: 0.8rem; margin-bottom: 0.75rem; }
 
 /* ==========================================================================
+   Mobile-First & Touch Styles: Sticky Table Columns, Card View, Dropzone
+   ========================================================================== */
+
+/* Sticky Table Columns for horizontal mobile scrolling */
+.touch-scrollable {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.marksheet-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.sticky-col-1 {
+    position: sticky;
+    left: 0;
+    z-index: 4;
+    background-color: var(--bg-surface);
+}
+.sticky-col-2 {
+    position: sticky;
+    left: 48px;
+    z-index: 4;
+    background-color: var(--bg-surface);
+    box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.08);
+}
+thead th.sticky-col-1,
+thead th.sticky-col-2 {
+    z-index: 10;
+    background-color: #1e293b !important;
+}
+
+/* View Mode Switcher (Table vs Touch Cards) */
+.view-mode-toggle {
+    display: inline-flex;
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 2px;
+}
+.btn-toggle {
+    padding: 0.25rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-toggle.active {
+    background-color: var(--bg-surface);
+    color: var(--primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Touch Cards View */
+.student-cards-container {
+    padding: 0.5rem 0;
+}
+.student-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.student-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.student-card:hover {
+    box-shadow: var(--shadow-md);
+}
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-color);
+}
+.card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+.card-student-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+.student-gender-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.card-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.card-scores-grid {
+    padding: 0.85rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+}
+.card-topic-field {
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.card-topic-meta {
+    display: flex;
+    flex-direction: column;
+}
+.card-topic-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-topic-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+.card-topic-field .mark-input {
+    width: 100%;
+    max-width: 100%;
+    height: 40px;
+    font-size: 1.05rem;
+}
+.card-summary-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0.65rem 0.5rem;
+    background-color: var(--bg-subtle);
+    border-top: 1px solid var(--border-color);
+    font-size: 0.8rem;
+}
+.card-summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+}
+.summary-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.summary-val {
+    font-weight: 700;
+}
+
+/* Excel Upload Dropzone */
+.excel-import-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.upload-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: var(--radius-md);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    background-color: var(--bg-subtle);
+    transition: all 0.2s ease;
+}
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
+    border-color: var(--primary);
+    background-color: rgba(79, 70, 229, 0.05);
+}
+.dropzone-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+.dropzone-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.dropzone-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+.preview-badge-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+.preview-count-chip {
+    padding: 0.3rem 0.65rem;
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.preview-table-wrap {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+/* Gemini AI Photo Scanner */
+.api-key-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+}
+.link-external {
+    text-decoration: underline;
+    font-weight: 600;
+}
+.capture-buttons-row {
+    display: flex;
+    gap: 0.75rem;
+}
+.photo-preview-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--bg-surface);
+}
+.preview-img-tag {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    background-color: #0f172a;
+    display: block;
+}
+.photo-meta-bar {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-subtle);
+    border-top: 1px solid var(--border-color);
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.ai-loading-box {
+    text-align: center;
+    padding: 2.5rem 1rem;
+}
+.ai-pulse-spinner {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto;
+    border: 4px solid rgba(79, 70, 229, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Mobile-First Media Queries (@media max-width: 768px) */
+@media (max-width: 768px) {
+    .hide-mobile { display: none !important; }
+    .show-mobile-only { display: flex !important; }
+
+    .marksheet-navbar {
+        padding: 0.6rem 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .nav-actions {
+        gap: 0.4rem;
+    }
+    .action-btn-text {
+        display: none;
+    }
+    .nav-class-main-title {
+        font-size: 1rem;
+    }
+    .marksheet-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.65rem;
+        padding: 0.6rem 0.75rem;
+    }
+    .scrollable-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        white-space: nowrap;
+        display: flex;
+        scrollbar-width: none;
+    }
+    .scrollable-tabs::-webkit-scrollbar { display: none; }
+    .toolbar-right {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        justify-content: space-between;
+    }
+    .main-content.marksheet-content {
+        padding-bottom: 75px !important; /* Leave space for mobile bottom bar */
+    }
+
+    /* Bottom Sheet Modals on Mobile */
+    .modal-box.mobile-sheet {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-width: 100% !important;
+        border-radius: 16px 16px 0 0 !important;
+        max-height: 85vh;
+        animation: sheetUp 0.25s ease-out;
+    }
+    @keyframes sheetUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+
+    /* Mobile Bottom Action Bar */
+    .mobile-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background-color: var(--bg-surface);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 100;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+        padding: 0 0.25rem;
+    }
+    .mobile-bar-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        flex: 1;
+        height: 100%;
+        transition: color 0.15s ease;
+    }
+    .mobile-bar-btn:active {
+        color: var(--primary);
+    }
+    .mobile-bar-btn .m-icon {
+        font-size: 1.25rem;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+    .mobile-bar-btn.active-highlight {
+        color: var(--primary);
+    }
+    .mobile-bar-btn.active-highlight .m-icon {
+        background-color: var(--primary);
+        color: #ffffff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+    }
+
+    /* Touch inputs on mobile */
+    .mark-input {
+        min-height: 40px;
+        font-size: 1rem;
+    }
+    .student-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 769px) {
+    .show-mobile-only { display: none !important; }
+}
+
+/* ==========================================================================
    Print Layout Stylesheet (@media print)
    ========================================================================== */
 @media print {
