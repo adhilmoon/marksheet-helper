@@ -15,24 +15,16 @@ class AuthView {
                     <div class="auth-header">
                         <div class="auth-brand-badge">Marksheet Helper</div>
                         <h1 class="auth-title">മാർക്ക്ഷീറ്റ് മാനേജർ</h1>
-                        <p class="auth-subtitle">
-                            മദ്രസകൾക്കും സ്കൂളുകൾക്കുമുള്ള ലളിതമായ മാർക്ക്ഷീറ്റ് തയ്യാറാക്കൽ സഹായി.
-                            <br><span class="auth-sub-hint">സ്വന്തം ലോക്കൽ സ്റ്റോറേജ് വഴി പൂർണ്ണ സ്വകാര്യത. ക്ലൗഡ് ആവശ്യമില്ല.</span>
-                        </p>
                     </div>
 
                     ${errorMsg ? `<div class="alert alert-danger" role="alert">${errorMsg}</div>` : ''}
 
                     <div class="auth-tabs">
-                        <button class="auth-tab ${!isRegister ? 'active' : ''}" id="tab-login-btn">പ്രവേശിക്കുക (Login)</button>
-                        <button class="auth-tab ${isRegister ? 'active' : ''}" id="tab-register-btn">പുതിയ അക്കൗണ്ട് (Register)</button>
+                        <button class="auth-tab ${!isRegister ? 'active' : ''}" id="tab-login-btn">ലോഗിൻ</button>
+                        <button class="auth-tab ${isRegister ? 'active' : ''}" id="tab-register-btn">രജിസ്റ്റർ</button>
                     </div>
 
                     ${!isRegister ? this._renderLoginForm() : this._renderRegisterForm()}
-
-                    <div class="auth-footer">
-                        <span>🔒 പൂർണ്ണമായും നിങ്ങളുടെ ബ്രൗസറിൽ സുരക്ഷിതമായി സൂക്ഷിക്കുന്നു.</span>
-                    </div>
                 </div>
             </div>
         `;
@@ -44,27 +36,27 @@ class AuthView {
         return `
             <form id="login-form" class="auth-form" autocomplete="off">
                 <div class="form-group">
-                    <label class="form-label" for="login-userid">യൂസർ ഐഡി (User ID)</label>
+                    <label class="form-label" for="login-userid">യൂസർ ഐഡി</label>
                     <input 
                         type="text" 
                         id="login-userid" 
                         class="form-control" 
-                        placeholder="ഉദാ: teacher1 അല്ലെങ്കിൽ adhil" 
+                        placeholder="യൂസർ ഐഡി" 
                         required 
                         autofocus
                     >
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="login-password">പാസ്‌വേഡ് (Password)</label>
+                    <label class="form-label" for="login-password">പാസ്‌വേഡ്</label>
                     <input 
                         type="password" 
                         id="login-password" 
                         class="form-control" 
-                        placeholder="രഹസ്യവാക്ക് നൽകുക" 
+                        placeholder="പാസ്‌വേഡ്" 
                         required
                     >
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">ലോഗിൻ ചെയ്യുക</button>
+                <button type="submit" class="btn btn-primary btn-block">ലോഗിൻ</button>
             </form>
         `;
     }
@@ -73,38 +65,37 @@ class AuthView {
         return `
             <form id="register-form" class="auth-form" autocomplete="off">
                 <div class="form-group">
-                    <label class="form-label" for="reg-fullname">പൂർണ്ണ നാമം (Full Name)</label>
+                    <label class="form-label" for="reg-fullname">പൂർണ്ണ നാമം</label>
                     <input 
                         type="text" 
                         id="reg-fullname" 
                         class="form-control" 
-                        placeholder="ഉദാ: ഉസ്താദ് മുഹമ്മദ് / അധ്യാപകന്റെ പേര്" 
+                        placeholder="പേര്" 
                         required 
                         autofocus
                     >
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="reg-userid">യൂസർ ഐഡി (User ID)</label>
+                    <label class="form-label" for="reg-userid">യൂസർ ഐഡി</label>
                     <input 
                         type="text" 
                         id="reg-userid" 
                         class="form-control" 
-                        placeholder="ഒരു പുതിയ യൂസർ ഐഡി നൽകുക (e.g. adhil2025)" 
+                        placeholder="യൂസർ ഐഡി" 
                         required
                     >
-                    <span class="field-hint">ഇംഗ്ലീഷ് അക്ഷരങ്ങളും അക്കങ്ങളും ഉപയോഗിക്കുക</span>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="reg-password">പാസ്‌വേഡ് (Password)</label>
+                    <label class="form-label" for="reg-password">പാസ്‌വേഡ്</label>
                     <input 
                         type="password" 
                         id="reg-password" 
                         class="form-control" 
-                        placeholder="കുറഞ്ഞത് 4 അക്ഷരങ്ങൾ" 
+                        placeholder="പാസ്‌വേഡ്" 
                         required
                     >
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">അക്കൗണ്ട് സൃഷ്ടിക്കുക</button>
+                <button type="submit" class="btn btn-primary btn-block">രജിസ്റ്റർ</button>
             </form>
         `;
     }

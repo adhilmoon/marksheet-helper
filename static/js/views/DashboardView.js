@@ -35,11 +35,11 @@ class DashboardView {
                             <span class="user-avatar">${(user.fullName || 'T')[0].toUpperCase()}</span>
                             <span class="user-name">${user.fullName || user.userId}</span>
                         </div>
-                        <button class="btn btn-outline btn-sm" id="btn-backup" title="ഡാറ്റ ബാക്കപ്പ് / റീസ്റ്റോർ ചെയ്യുക">
-                            ബാക്കപ്പ് & ഡാറ്റ
+                        <button class="btn btn-outline btn-sm" id="btn-backup" title="ഡാറ്റ ബാക്കപ്പ്">
+                            ബാക്കപ്പ്
                         </button>
-                        <button class="btn btn-ghost btn-sm" id="btn-logout" title="ലോഗ് ഔട്ട് ചെയ്യുക">
-                            പുറത്തിറങ്ങുക
+                        <button class="btn btn-ghost btn-sm" id="btn-logout" title="പുറത്തിറങ്ങുക">
+                            ലോഗ് ഔട്ട്
                         </button>
                     </div>
                 </header>
@@ -48,13 +48,10 @@ class DashboardView {
                     <div class="dashboard-hero">
                         <div class="hero-left">
                             <h2 class="hero-title">സ്വാഗതം, ${user.fullName || 'അധ്യാപകരെ'}</h2>
-                            <p class="hero-desc">
-                                നിങ്ങളുടെ ക്ലാസുകൾ ക്രമീകരിക്കുക, വിദ്യാർത്ഥികളുടെ മാർക്കുകൾ രേഖപ്പെടുത്തുക, പിഡിഎഫും എക്സലും ഡൗൺലോഡ് ചെയ്യുക.
-                            </p>
                         </div>
                         <div class="hero-right">
-                            <button class="btn btn-primary btn-lg" id="btn-add-class">
-                                ＋ പുതിയ ക്ലാസ് ചേർക്കുക
+                            <button class="btn btn-primary" id="btn-add-class">
+                                പുതിയ ക്ലാസ്
                             </button>
                         </div>
                     </div>
@@ -64,23 +61,21 @@ class DashboardView {
                         <div class="stat-card">
                             <div class="stat-label">ആകെ ക്ലാസുകൾ</div>
                             <div class="stat-value">${classes.length}</div>
-                            <div class="stat-sub">സജീവ ക്ലാസ്റൂമുകൾ</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-label">ആകെ വിദ്യാർത്ഥികൾ</div>
                             <div class="stat-value">${totalStudents}</div>
-                            <div class="stat-sub">${totalBoys} ആൺകുട്ടികൾ • ${totalGirls} പെൺകുട്ടികൾ</div>
+                            <div class="stat-sub">${totalBoys} ആൺ • ${totalGirls} പെൺ</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">സ്റ്റോറേജ് നില</div>
+                            <div class="stat-label">സ്റ്റോറേജ്</div>
                             <div class="stat-value text-success">ലോക്കൽ</div>
-                            <div class="stat-sub">പൂർണ്ണ സ്വകാര്യത (Offline Ready)</div>
                         </div>
                     </div>
 
                     <!-- Classes Section -->
                     <div class="section-header">
-                        <h3 class="section-title">എന്റെ ക്ലാസുകൾ (${classes.length})</h3>
+                        <h3 class="section-title">ക്ലാസുകൾ (${classes.length})</h3>
                     </div>
 
                     ${classes.length === 0 ? this._renderEmptyState() : this._renderClassGrid(classes)}
@@ -97,14 +92,12 @@ class DashboardView {
     _renderEmptyState() {
         return `
             <div class="empty-state">
-                <div class="empty-illustration">📋</div>
-                <h4 class="empty-title">ഇതുവരെ ക്ലാസുകളൊന്നും ചേർത്തിട്ടില്ല</h4>
-                <p class="empty-text">
-                    നിങ്ങളുടെ മദ്രസ അല്ലെങ്കിൽ സ്കൂൾ ക്ലാസ് ചേർത്ത് മാർക്കുകൾ രേഖപ്പെടുത്താൻ ആരംഭിക്കുക.
-                </p>
-                <button class="btn btn-primary" id="btn-empty-add-class">
-                    ＋ ആദ്യ ക്ലാസ് സൃഷ്ടിക്കുക
-                </button>
+                <h4 class="empty-title">ക്ലാസുകളൊന്നും ചേർത്തിട്ടില്ല</h4>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-primary" id="btn-empty-add-class">
+                        ആദ്യ ക്ലാസ് ചേർക്കുക
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -123,19 +116,19 @@ class DashboardView {
                             <div class="class-card-header">
                                 <span class="class-badge">${cls.academicYear || '2025-26'}</span>
                                 <div class="class-actions-menu">
-                                    <button class="btn-icon btn-edit-class" title="ക്ലാസ് എഡിറ്റ് ചെയ്യുക" data-id="${cls.id}">✏️</button>
-                                    <button class="btn-icon btn-delete-class" title="ക്ലാസ് നീക്കം ചെയ്യുക" data-id="${cls.id}">🗑️</button>
+                                    <button class="btn btn-outline btn-xs btn-edit-class" title="എഡിറ്റ്" data-id="${cls.id}">എഡിറ്റ്</button>
+                                    <button class="btn btn-ghost btn-xs btn-delete-class text-danger" title="നീക്കം ചെയ്യുക" data-id="${cls.id}">നീക്കം</button>
                                 </div>
                             </div>
                             <div class="class-card-body">
-                                <div class="class-org-name">${cls.madrasaName || 'സ്ഥാപനത്തിന്റെ പേര്'}</div>
+                                <div class="class-org-name">${cls.madrasaName || ''}</div>
                                 <h4 class="class-name-title">${cls.className || 'ക്ലാസ്'}</h4>
                                 <div class="class-exam-tag">${cls.examName || 'പരീക്ഷ'}</div>
 
                                 <div class="class-metrics">
                                     <div class="metric-item">
                                         <span class="metric-num">${students.length}</span>
-                                        <span class="metric-label">വിദ്യാർത്ഥികൾ</span>
+                                        <span class="metric-label">കുട്ടികൾ</span>
                                     </div>
                                     <div class="metric-item">
                                         <span class="metric-num">${boys} / ${girls}</span>
@@ -143,13 +136,13 @@ class DashboardView {
                                     </div>
                                     <div class="metric-item">
                                         <span class="metric-num">${topics.length}</span>
-                                        <span class="metric-label">സബ്ജക്റ്റുകൾ</span>
+                                        <span class="metric-label">വിഷയങ്ങൾ</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="class-card-footer">
                                 <button class="btn btn-primary btn-block btn-open-class" data-id="${cls.id}">
-                                    മാർക്ക്ഷീറ്റ് തുറക്കുക →
+                                    മാർക്ക്ഷീറ്റ് തുറക്കുക
                                 </button>
                             </div>
                         </div>
@@ -175,25 +168,25 @@ class DashboardView {
             <div class="modal-backdrop">
                 <div class="modal-box modal-lg">
                     <div class="modal-header">
-                        <h3 class="modal-title">${isEdit ? 'ക്ലാസ് വിവരങ്ങൾ പുതുക്കുക' : 'പുതിയ ക്ലാസ് ചേർക്കുക'}</h3>
+                        <h3 class="modal-title">${isEdit ? 'ക്ലാസ് എഡിറ്റ് ചെയ്യുക' : 'പുതിയ ക്ലാസ്'}</h3>
                         <button class="btn-close" id="btn-close-modal">&times;</button>
                     </div>
                     <form id="class-form">
                         <div class="modal-body">
                             <div class="form-row">
                                 <div class="form-group flex-2">
-                                    <label class="form-label">മദ്രസയുടെ / സ്കൂളിന്റെ പേര് (Madrasa / School Name) *</label>
+                                    <label class="form-label">മദ്രസ / സ്കൂൾ പേര് *</label>
                                     <input 
                                         type="text" 
                                         id="modal-madrasa" 
                                         class="form-control" 
-                                        placeholder="ഉദാ: ദാറുൽ ഉലൂം മദ്രസ, താനൂർ" 
+                                        placeholder="പേര്" 
                                         value="${isEdit ? (classData.madrasaName || '') : ''}" 
                                         required
                                     >
                                 </div>
                                 <div class="form-group flex-1">
-                                    <label class="form-label">അക്കാദമിക് വർഷം (Year)</label>
+                                    <label class="form-label">വർഷം</label>
                                     <input 
                                         type="text" 
                                         id="modal-year" 
@@ -206,29 +199,29 @@ class DashboardView {
 
                             <div class="form-row">
                                 <div class="form-group flex-1">
-                                    <label class="form-label">ക്ലാസ്സ് / സ്റ്റാൻഡേർഡ് (Class / Standard) *</label>
+                                    <label class="form-label">ക്ലാസ്സ് *</label>
                                     <input 
                                         type="text" 
                                         id="modal-classname" 
                                         class="form-control" 
-                                        placeholder="ഉദാ: 5-ാം ക്ലാസ്സ് / Class 5-A" 
+                                        placeholder="ക്ലാസ്സ്" 
                                         value="${isEdit ? (classData.className || '') : ''}" 
                                         required
                                     >
                                 </div>
                                 <div class="form-group flex-1">
-                                    <label class="form-label">പരീക്ഷയുടെ പേര് (Exam Name) *</label>
+                                    <label class="form-label">പരീക്ഷ *</label>
                                     <input 
                                         type="text" 
                                         id="modal-examname" 
                                         class="form-control" 
-                                        placeholder="ഉദാ: ഒന്നാം പാദവാർഷിക പരീക്ഷ / First Term" 
-                                        value="${isEdit ? (classData.examName || '') : 'അർദ്ധവാർഷിക പരീക്ഷ (Mid-Term)'}" 
+                                        placeholder="പരീക്ഷ" 
+                                        value="${isEdit ? (classData.examName || '') : 'അർദ്ധവാർഷിക പരീക്ഷ'}" 
                                         required
                                     >
                                 </div>
                                 <div class="form-group flex-1">
-                                    <label class="form-label">പാസ്സ് മാർക്ക് ശതമാനം (Pass %)</label>
+                                    <label class="form-label">പാസ്സ് %</label>
                                     <input 
                                         type="number" 
                                         id="modal-passpct" 
@@ -242,11 +235,8 @@ class DashboardView {
 
                             <div class="topics-builder-section">
                                 <div class="section-sub-header">
-                                    <div>
-                                        <h5 class="builder-title">വിഷയങ്ങൾ / ടോപ്പിക്സ് (Subjects / Topics)</h5>
-                                        <span class="field-hint">ഓരോ വിഷയത്തിനും പരമാവധി മാർക്ക് നൽകുക (ഇവ മാർക്ക്ഷീറ്റിൽ കോളംസ് ആയി വരും)</span>
-                                    </div>
-                                    <button type="button" class="btn btn-outline btn-sm" id="btn-add-topic-row">＋ വിഷയം ചേർക്കുക</button>
+                                    <h5 class="builder-title">വിഷയങ്ങൾ</h5>
+                                    <button type="button" class="btn btn-outline btn-sm" id="btn-add-topic-row">വിഷയം ചേർക്കുക</button>
                                 </div>
 
                                 <div class="topic-rows-container" id="topic-rows-container">
@@ -255,18 +245,18 @@ class DashboardView {
                                             <input 
                                                 type="text" 
                                                 class="form-control topic-name-input" 
-                                                placeholder="വിഷയത്തിന്റെ പേര് (Subject Name)" 
+                                                placeholder="വിഷയത്തിന്റെ പേര്" 
                                                 value="${top.name || ''}" 
                                                 required
                                             >
                                             <input 
                                                 type="number" 
                                                 class="form-control topic-max-input" 
-                                                placeholder="പരമാവധി മാർക്ക്" 
+                                                placeholder="മാർക്ക്" 
                                                 value="${top.maxMarks || 50}" 
                                                 min="1" 
                                                 max="1000" 
-                                                style="max-width: 130px;" 
+                                                style="max-width: 110px;" 
                                                 required
                                             >
                                             <button type="button" class="btn-icon btn-remove-topic" title="നീക്കം ചെയ്യുക">&times;</button>
@@ -278,7 +268,7 @@ class DashboardView {
                         <div class="modal-footer">
                             <button type="button" class="btn btn-ghost" id="btn-cancel-modal">റദ്ദാക്കുക</button>
                             <button type="submit" class="btn btn-primary">
-                                ${isEdit ? 'മാറ്റങ്ങൾ സൂക്ഷിക്കുക' : 'ക്ലാസ് സൃഷ്ടിക്കുക'}
+                                ${isEdit ? 'സേവ് ചെയ്യുക' : 'ക്ലാസ് സൃഷ്ടിക്കുക'}
                             </button>
                         </div>
                     </form>
@@ -311,7 +301,7 @@ class DashboardView {
                     <input 
                         type="text" 
                         class="form-control topic-name-input" 
-                        placeholder="വിഷയത്തിന്റെ പേര് (Subject Name)" 
+                        placeholder="വിഷയത്തിന്റെ പേര്" 
                         required
                     >
                     <input 
@@ -321,7 +311,7 @@ class DashboardView {
                         value="50" 
                         min="1" 
                         max="1000" 
-                        style="max-width: 130px;" 
+                        style="max-width: 110px;" 
                         required
                     >
                     <button type="button" class="btn-icon btn-remove-topic" title="നീക്കം ചെയ്യുക">&times;</button>
@@ -330,7 +320,6 @@ class DashboardView {
                 newRow.querySelector('.btn-remove-topic').addEventListener('click', () => newRow.remove());
             });
 
-            // Bind existing remove buttons
             topicsContainer.querySelectorAll('.btn-remove-topic').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const row = e.target.closest('.topic-input-row');
@@ -360,14 +349,13 @@ class DashboardView {
                     const name = row.querySelector('.topic-name-input').value.trim();
                     const max = Number(row.querySelector('.topic-max-input').value) || 50;
                     if (name) {
-                        // Keep existing topic ID if editing existing position
                         const existingId = (isEdit && classData.topics && classData.topics[i]) ? classData.topics[i].id : ('top_' + Date.now() + '_' + i);
                         topics.push({ id: existingId, name, maxMarks: max });
                     }
                 });
 
                 if (topics.length === 0) {
-                    alert('ദയവായി കുറഞ്ഞത് ഒരു വിഷയമെങ്കിലും ചേർക്കുക.');
+                    alert('കുറഞ്ഞത് ഒരു വിഷയമെങ്കിലും ചേർക്കുക.');
                     return;
                 }
 
@@ -393,27 +381,20 @@ class DashboardView {
             <div class="modal-backdrop">
                 <div class="modal-box">
                     <div class="modal-header">
-                        <h3 class="modal-title">ഡാറ്റ ബാക്കപ്പ് & റീസ്റ്റോർ</h3>
+                        <h3 class="modal-title">ഡാറ്റ ബാക്കപ്പ്</h3>
                         <button class="btn-close" id="btn-close-backup">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <p class="modal-desc">
-                            നിങ്ങളുടെ എല്ലാ ക്ലാസുകളും വിദ്യാർത്ഥികളുടെ വിവരങ്ങളും മാർക്കുകളും നിങ്ങളുടെ ബ്രൗസറിന്റെ ലോക്കൽ സ്റ്റോറേജിലാണ് സൂക്ഷിച്ചിരിക്കുന്നത്.
-                            ഫോൺ മാറുമ്പോഴോ സുരക്ഷിതമായി സൂക്ഷിക്കാനോ ബാക്കപ്പ് ഫയൽ ഡൗൺലോഡ് ചെയ്യാം.
-                        </p>
-                        
                         <div class="backup-actions">
                             <div class="backup-card">
-                                <h5>📥 ബാക്കപ്പ് ഡൗൺലോഡ് ചെയ്യുക</h5>
-                                <p class="text-muted">എല്ലാ ഡാറ്റയും ഒരു JSON ഫയലായി സുരക്ഷിതമായി സേവ് ചെയ്യുക.</p>
-                                <button class="btn btn-primary" id="btn-download-backup">ബാക്കപ്പ് ഫയൽ ഡൗൺലോഡ് ചെയ്യുക</button>
+                                <h5>ബാക്കപ്പ് ഡൗൺലോഡ്</h5>
+                                <button class="btn btn-primary" id="btn-download-backup">ഡൗൺലോഡ്</button>
                             </div>
 
                             <div class="backup-card">
-                                <h5>📤 ബാക്കപ്പ് റീസ്റ്റോർ ചെയ്യുക</h5>
-                                <p class="text-muted">മുമ്പ് എടുത്ത ബാക്കപ്പ് ഫയൽ സെലക്ട് ചെയ്ത് തിരിച്ചെടുക്കുക.</p>
+                                <h5>ബാക്കപ്പ് റീസ്റ്റോർ</h5>
                                 <input type="file" id="file-restore" accept=".json" style="display:none;">
-                                <button class="btn btn-outline" id="btn-trigger-restore">ഫയൽ തെരഞ്ഞെടുക്കുക</button>
+                                <button class="btn btn-outline" id="btn-trigger-restore">ഫയൽ തിരഞ്ഞെടുക്കുക</button>
                             </div>
                         </div>
                     </div>
@@ -443,11 +424,11 @@ class DashboardView {
             reader.onload = (event) => {
                 try {
                     window.storageModel.importBackup(event.target.result);
-                    alert('ബാക്കപ്പ് വിജയകരമായി റീസ്റ്റോർ ചെയ്തു!');
+                    alert('ബാക്കപ്പ് റീസ്റ്റോർ ചെയ്തു!');
                     closeModal();
                     window.classController.showDashboard();
                 } catch (err) {
-                    alert('റീസ്റ്റോർ ചെയ്യുന്നതിൽ പിഴവ് സംഭവിച്ചു: ' + err.message);
+                    alert('പിഴവ് സംഭവിച്ചു: ' + err.message);
                 }
             };
             reader.readAsText(file);
@@ -455,29 +436,25 @@ class DashboardView {
     }
 
     _bindEvents() {
-        // Add class button
         const addBtn = document.getElementById('btn-add-class');
         const emptyAddBtn = document.getElementById('btn-empty-add-class');
         if (addBtn) addBtn.addEventListener('click', () => this.showClassModal());
         if (emptyAddBtn) emptyAddBtn.addEventListener('click', () => this.showClassModal());
 
-        // Logout
         const logoutBtn = document.getElementById('btn-logout');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
-                if (confirm('തീർച്ചയായും ലോഗ് ഔട്ട് ചെയ്യണമെന്നുണ്ടോ?')) {
+                if (confirm('ലോഗ് ഔട്ട് ചെയ്യണമെന്നുണ്ടോ?')) {
                     window.authController.handleLogout();
                 }
             });
         }
 
-        // Backup
         const backupBtn = document.getElementById('btn-backup');
         if (backupBtn) {
             backupBtn.addEventListener('click', () => this.showBackupModal());
         }
 
-        // Open class cards
         document.querySelectorAll('.btn-open-class').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const classId = e.currentTarget.getAttribute('data-id');
@@ -485,7 +462,6 @@ class DashboardView {
             });
         });
 
-        // Edit class
         document.querySelectorAll('.btn-edit-class').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const classId = e.currentTarget.getAttribute('data-id');
@@ -494,11 +470,10 @@ class DashboardView {
             });
         });
 
-        // Delete class
         document.querySelectorAll('.btn-delete-class').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const classId = e.currentTarget.getAttribute('data-id');
-                if (confirm('ഈ ക്ലാസും ഇതിലെ എല്ലാ മാർക്കുകളും സ്ഥിരമായി ഒഴിവാക്കണോ?')) {
+                if (confirm('ഈ ക്ലാസ് നീക്കം ചെയ്യണോ?')) {
                     window.classController.deleteClass(classId);
                 }
             });

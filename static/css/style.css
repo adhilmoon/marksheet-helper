@@ -1433,7 +1433,7 @@ thead th.sticky-col-2 {
         bottom: 0;
         left: 0;
         right: 0;
-        height: 60px;
+        height: 56px;
         background-color: var(--bg-surface);
         border-top: 1px solid var(--border-color);
         display: flex;
@@ -1451,9 +1451,9 @@ thead th.sticky-col-2 {
         background: none;
         border: none;
         color: var(--text-secondary);
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        padding: 0.25rem 0.5rem;
+        padding: 0.35rem 0.4rem;
         cursor: pointer;
         flex: 1;
         height: 100%;
@@ -1462,24 +1462,9 @@ thead th.sticky-col-2 {
     .mobile-bar-btn:active {
         color: var(--primary);
     }
-    .mobile-bar-btn .m-icon {
-        font-size: 1.25rem;
-        line-height: 1;
-        margin-bottom: 2px;
-    }
     .mobile-bar-btn.active-highlight {
         color: var(--primary);
-    }
-    .mobile-bar-btn.active-highlight .m-icon {
-        background-color: var(--primary);
-        color: #ffffff;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+        font-weight: 700;
     }
 
     /* Touch inputs on mobile */
@@ -1496,47 +1481,248 @@ thead th.sticky-col-2 {
     .show-mobile-only { display: none !important; }
 }
 
+/* Hide printable header & footer on normal screen */
+.print-only-header,
+.print-only-footer {
+    display: none;
+}
+
 /* ==========================================================================
-   Print Layout Stylesheet (@media print)
+   A4 Sheet Print Layout Stylesheet (@media print)
    ========================================================================== */
+@page {
+    size: A4 landscape;
+    margin: 8mm 6mm;
+}
+
 @media print {
-    body {
-        background-color: #ffffff;
-        color: #000000;
+    *, *::before, *::after {
+        box-sizing: border-box !important;
+        text-shadow: none !important;
+        box-shadow: none !important;
     }
+
+    html, body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        font-size: 8.5pt !important;
+        line-height: 1.2 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide all web chrome, navigation, toolbars, buttons, modals */
     .navbar, 
     .marksheet-toolbar, 
     .sheet-quick-footer, 
+    .mobile-bottom-bar,
+    .view-mode-toggle,
+    .sheet-tabs,
+    .btn, 
+    .btn-icon,
     .td-action, 
     .th-action, 
-    .btn, 
+    .autosave-badge,
+    .auth-wrapper,
+    .empty-state,
     #modal-container {
         display: none !important;
     }
-    .main-content {
+
+    .app-layout,
+    .main-content,
+    .marksheet-content,
+    .sheet-content-wrapper {
         max-width: 100% !important;
+        width: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
+        border: none !important;
+        background: transparent !important;
     }
+
+    /* Dedicated Print Header (Institutional Title & Meta) */
+    .print-only-header {
+        display: block !important;
+        text-align: center !important;
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+        border-bottom: 1.5px solid #000000 !important;
+    }
+
+    .print-institution-name {
+        font-size: 14pt !important;
+        font-weight: 800 !important;
+        margin: 0 0 2px 0 !important;
+        text-transform: uppercase !important;
+        color: #000000 !important;
+        letter-spacing: 0.5px;
+    }
+
+    .print-meta-line {
+        font-size: 9pt !important;
+        font-weight: 600 !important;
+        color: #222222 !important;
+        margin: 0 0 2px 0 !important;
+    }
+
+    .print-sheet-title {
+        font-size: 9.5pt !important;
+        font-weight: 700 !important;
+        color: #111111 !important;
+        text-decoration: underline !important;
+        margin: 0 !important;
+    }
+
+    /* Table Container and Alignment to A4 */
     .table-responsive-container {
         border: none !important;
         box-shadow: none !important;
+        overflow: visible !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
+
     .marksheet-table {
-        border: 1px solid #000 !important;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        border: 1.5px solid #000000 !important;
+        font-size: 8.5pt !important;
+        page-break-inside: auto;
     }
+
+    .marksheet-table thead {
+        display: table-header-group !important;
+    }
+
+    .marksheet-table tbody tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+
     .marksheet-table th {
         background-color: #f1f5f9 !important;
         color: #000000 !important;
-        border: 1px solid #000 !important;
+        border: 1px solid #000000 !important;
+        padding: 4px 5px !important;
+        font-size: 8.5pt !important;
+        font-weight: 700 !important;
+        text-align: center !important;
     }
+
+    .marksheet-table th.th-name {
+        text-align: left !important;
+    }
+
+    .topic-max-badge {
+        background-color: transparent !important;
+        color: #333333 !important;
+        font-size: 7pt !important;
+        padding: 0 !important;
+        font-weight: 600 !important;
+    }
+
     .marksheet-table td {
-        border: 1px solid #000 !important;
+        border: 1px solid #222222 !important;
+        padding: 3px 4px !important;
+        font-size: 8.5pt !important;
+        color: #000000 !important;
+        height: auto !important;
     }
+
+    /* Reset sticky columns in print mode to prevent layout overlap on paper */
+    .sticky-col-1, 
+    .sticky-col-2 {
+        position: static !important;
+        left: auto !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    .st-gender-dot {
+        display: none !important;
+    }
+
     .mark-input {
         background: transparent !important;
         border: none !important;
-        color: #000 !important;
+        color: #000000 !important;
         box-shadow: none !important;
+        text-align: center !important;
+        width: 100% !important;
+        font-size: 8.5pt !important;
+        font-weight: 600 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: auto !important;
+        min-height: unset !important;
+        -webkit-appearance: none;
+    }
+
+    /* Color indicators for print */
+    .mark-input.mark-fail {
+        color: #b91c1c !important;
+        font-weight: 700 !important;
+    }
+    .mark-input.mark-excellent {
+        color: #15803d !important;
+        font-weight: 700 !important;
+    }
+    .mark-input.mark-good {
+        color: #1d4ed8 !important;
+        font-weight: 700 !important;
+    }
+    .mark-input.mark-pass {
+        color: #b45309 !important;
+        font-weight: 700 !important;
+    }
+
+    .badge {
+        border: 1px solid #444444 !important;
+        background: transparent !important;
+        color: #000000 !important;
+        font-size: 7.5pt !important;
+        padding: 1px 4px !important;
+        font-weight: 700 !important;
+    }
+
+    .badge-success {
+        border-color: #15803d !important;
+        color: #15803d !important;
+    }
+
+    .badge-danger {
+        border-color: #b91c1c !important;
+        color: #b91c1c !important;
+    }
+
+    /* Dedicated Print Footer with Signatures */
+    .print-only-footer {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-end !important;
+        margin-top: 24px !important;
+        padding-top: 10px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .print-sig-block {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        min-width: 140px !important;
+        font-size: 8.5pt !important;
+        font-weight: 600 !important;
+    }
+
+    .print-sig-line {
+        width: 140px !important;
+        border-top: 1px dotted #000000 !important;
+        margin-bottom: 5px !important;
     }
 }

@@ -31,6 +31,6 @@ def status():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
     print(f"\n=======================================================")
-    print(f"🚀 Marksheet Helper is running at http://localhost:{port}")
+    print(f"Marksheet Helper is running at http://localhost:{port}")
     print(f"=======================================================\n")
     app.run(host='0.0.0.0', port=port, debug=True)

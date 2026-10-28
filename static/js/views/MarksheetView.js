@@ -1,14 +1,14 @@
 /**
  * MarksheetView.js
  * MVC - View Layer: Mobile-First Marksheet, Sticky Table & Touch Cards View,
- * 1-Click Excel/CSV Importer, and Gemini 1.5 Flash AI Photo Scanner.
+ * 1-Click Excel/CSV Importer, Gemini AI Photo Scanner, and A4 Sheet Printing.
  */
 
 class MarksheetView {
     constructor() {
         this.container = document.getElementById('app-root');
         this.activeTab = 'boys'; // 'boys' | 'girls' | 'all' | 'analytics'
-        this.viewMode = 'table'; // 'table' | 'cards' (mobile-first toggle)
+        this.viewMode = 'table'; // 'table' | 'cards'
         this.currentClass = null;
     }
 
@@ -28,11 +28,11 @@ class MarksheetView {
                 <!-- Top Breadcrumb & Navbar -->
                 <header class="navbar marksheet-navbar">
                     <div class="nav-left">
-                        <button class="btn btn-ghost btn-sm" id="btn-back-dashboard" title="ഡാഷ്‌ബോർഡ്">
-                            ← <span class="hide-mobile">ഡാഷ്‌ബോർഡിലേക്ക്</span>
+                        <button class="btn btn-ghost btn-sm" id="btn-back-dashboard" title="ക്ലാസുകൾ">
+                            ← <span class="hide-mobile">ക്ലാസുകൾ</span>
                         </button>
                         <div class="nav-class-info">
-                            <span class="nav-madrasa-sub">${cls.madrasaName || 'മദ്രസ / സ്കൂൾ'}</span>
+                            <span class="nav-madrasa-sub">${cls.madrasaName || ''}</span>
                             <h3 class="nav-class-main-title">${cls.className} • ${cls.examName}</h3>
                         </div>
                     </div>
@@ -42,21 +42,26 @@ class MarksheetView {
                         </div>
 
                         <!-- 1-Click Excel Import -->
-                        <button class="btn btn-outline btn-sm btn-action-excel" id="btn-import-excel" title="എക്സൽ ഫയലിൽ നിന്ന് മാർക്കുകൾ ചേർക്കുക">
-                            📥 <span class="action-btn-text">Excel ഇംപോർട്ട്</span>
+                        <button class="btn btn-outline btn-sm btn-action-excel" id="btn-import-excel" title="Excel ഇംപോർട്ട്">
+                            <span class="action-btn-text">Excel ഇംപോർട്ട്</span>
                         </button>
 
                         <!-- Gemini Flash AI Photo Scan -->
-                        <button class="btn btn-outline btn-sm btn-action-ai" id="btn-scan-gemini" title="മാർക്ക്ഷീറ്റ് ഫോട്ടോ എടുത്ത് സ്വയം ചേർക്കുക (Gemini Flash AI)">
-                            📸 <span class="action-btn-text">AI ഫോട്ടോ സ്കാൻ</span>
+                        <button class="btn btn-outline btn-sm btn-action-ai" id="btn-scan-gemini" title="AI സ്കാൻ">
+                            <span class="action-btn-text">AI സ്കാൻ</span>
+                        </button>
+
+                        <!-- Print Button -->
+                        <button class="btn btn-primary btn-sm btn-print" id="btn-print-nav" title="പ്രിന്റ് ചെയ്യുക">
+                            പ്രിന്റ്
                         </button>
 
                         <!-- Export dropdown / buttons -->
                         <button class="btn btn-outline btn-sm hide-mobile" id="btn-export-excel" title="Excel ഡൗൺലോഡ്">
-                            📊 Excel
+                            Excel
                         </button>
-                        <button class="btn btn-primary btn-sm btn-pdf-export" id="btn-export-pdf" title="PDF ഡൗൺലോഡ്">
-                            📄 <span class="hide-mobile">PDF ഡൗൺലോഡ്</span>
+                        <button class="btn btn-outline btn-sm hide-mobile" id="btn-export-pdf" title="PDF ഡൗൺലോഡ്">
+                            PDF
                         </button>
                     </div>
                 </header>
@@ -68,36 +73,39 @@ class MarksheetView {
                             <!-- Sheets Tabs -->
                             <div class="sheet-tabs scrollable-tabs">
                                 <button class="sheet-tab ${this.activeTab === 'boys' ? 'active' : ''}" data-tab="boys">
-                                    👦 ആൺകുട്ടികൾ <span class="tab-badge">${boys.length}</span>
+                                    ആൺകുട്ടികൾ <span class="tab-badge">${boys.length}</span>
                                 </button>
                                 <button class="sheet-tab ${this.activeTab === 'girls' ? 'active' : ''}" data-tab="girls">
-                                    👧 പെൺകുട്ടികൾ <span class="tab-badge">${girls.length}</span>
+                                    പെൺകുട്ടികൾ <span class="tab-badge">${girls.length}</span>
                                 </button>
                                 <button class="sheet-tab ${this.activeTab === 'all' ? 'active' : ''}" data-tab="all">
-                                    👥 എല്ലാവരും <span class="tab-badge">${students.length}</span>
+                                    എല്ലാവരും <span class="tab-badge">${students.length}</span>
                                 </button>
                                 <button class="sheet-tab ${this.activeTab === 'analytics' ? 'active' : ''}" data-tab="analytics">
-                                    📈 റിസൾട്ട്
+                                    റിസൾട്ട്
                                 </button>
                             </div>
                         </div>
 
                         <div class="toolbar-right">
-                            <!-- Mobile View Switcher (Table vs Touch Cards) -->
+                            <!-- View Switcher -->
                             <div class="view-mode-toggle" id="view-mode-group">
-                                <button type="button" class="btn-toggle ${this.viewMode === 'table' ? 'active' : ''}" id="btn-mode-table" title="പട്ടിക കാഴ്ച്ച">
-                                    📋 <span class="toggle-text">പട്ടിക</span>
+                                <button type="button" class="btn-toggle ${this.viewMode === 'table' ? 'active' : ''}" id="btn-mode-table" title="പട്ടിക">
+                                    <span class="toggle-text">പട്ടിക</span>
                                 </button>
-                                <button type="button" class="btn-toggle ${this.viewMode === 'cards' ? 'active' : ''}" id="btn-mode-cards" title="കാർഡ് കാഴ്ച്ച (മൊബൈലിന് അനുയോജ്യം)">
-                                    📇 <span class="toggle-text">കാർഡുകൾ</span>
+                                <button type="button" class="btn-toggle ${this.viewMode === 'cards' ? 'active' : ''}" id="btn-mode-cards" title="കാർഡുകൾ">
+                                    <span class="toggle-text">കാർഡുകൾ</span>
                                 </button>
                             </div>
 
                             <button class="btn btn-outline btn-sm" id="btn-manage-topics">
-                                📚 വിഷയങ്ങൾ (${topics.length})
+                                വിഷയങ്ങൾ (${topics.length})
+                            </button>
+                            <button class="btn btn-outline btn-sm btn-print" id="btn-print-toolbar">
+                                പ്രിന്റ്
                             </button>
                             <button class="btn btn-primary btn-sm" id="btn-add-student">
-                                ＋ വിദ്യാർത്ഥി
+                                പുതിയ വിദ്യാർത്ഥി
                             </button>
                         </div>
                     </div>
@@ -112,26 +120,24 @@ class MarksheetView {
                     </div>
                 </main>
 
-                <!-- Mobile Floating / Bottom Action Bar (Visible only on mobile devices) -->
+                <!-- Mobile Floating / Bottom Action Bar -->
                 <nav class="mobile-bottom-bar show-mobile-only">
+                    <button class="mobile-bar-btn" id="m-btn-print" title="പ്രിന്റ്">
+                        <span class="m-label font-bold">പ്രിന്റ്</span>
+                    </button>
                     <button class="mobile-bar-btn" id="m-btn-excel" title="Excel ഇംപോർട്ട്">
-                        <span class="m-icon">📥</span>
                         <span class="m-label">Excel</span>
                     </button>
-                    <button class="mobile-bar-btn" id="m-btn-ai" title="AI ഫോട്ടോ സ്കാൻ">
-                        <span class="m-icon">📸</span>
+                    <button class="mobile-bar-btn" id="m-btn-ai" title="AI സ്കാൻ">
                         <span class="m-label">AI സ്കാൻ</span>
                     </button>
                     <button class="mobile-bar-btn active-highlight" id="m-btn-add-student" title="വിദ്യാർത്ഥിയെ ചേർക്കുക">
-                        <span class="m-icon">＋</span>
-                        <span class="m-label">കുട്ടി</span>
+                        <span class="m-label">+ കുട്ടി</span>
                     </button>
                     <button class="mobile-bar-btn" id="m-btn-toggle-view" title="കാഴ്ച്ച മാറ്റുക">
-                        <span class="m-icon">${this.viewMode === 'cards' ? '📋' : '📇'}</span>
                         <span class="m-label">${this.viewMode === 'cards' ? 'പട്ടിക' : 'കാർഡ്'}</span>
                     </button>
-                    <button class="mobile-bar-btn" id="m-btn-pdf" title="PDF ഡൗൺലോഡ്">
-                        <span class="m-icon">📄</span>
+                    <button class="mobile-bar-btn" id="m-btn-pdf" title="PDF">
                         <span class="m-label">PDF</span>
                     </button>
                 </nav>
@@ -173,13 +179,24 @@ class MarksheetView {
         const resultMap = {};
         sheetResults.forEach(r => { resultMap[r.student.id] = r; });
 
+        let sheetTitle = 'എല്ലാ വിദ്യാർത്ഥികളുടെയും മാർക്ക്ഷീറ്റ്';
+        if (this.activeTab === 'boys') sheetTitle = 'ആൺകുട്ടികളുടെ മാർക്ക്ഷീറ്റ്';
+        else if (this.activeTab === 'girls') sheetTitle = 'പെൺകുട്ടികളുടെ മാർക്ക്ഷീറ്റ്';
+
         return `
+            <!-- Print-Only Header Block (Aligned for A4 Sheet Printing) -->
+            <div class="print-only-header">
+                <h1 class="print-institution-name">${cls.madrasaName || 'മാർക്ക്ഷീറ്റ്'}</h1>
+                <div class="print-meta-line">${cls.className || ''} • ${cls.examName || ''} (${cls.academicYear || ''})</div>
+                <div class="print-sheet-title">${sheetTitle}</div>
+            </div>
+
             <div class="table-responsive-container touch-scrollable">
                 <table class="marksheet-table" id="marksheet-grid">
                     <thead>
                         <tr>
                             <th class="th-roll sticky-col-1">റോൾ</th>
-                            <th class="th-name sticky-col-2">വിദ്യാർത്ഥിയുടെ പേര്</th>
+                            <th class="th-name sticky-col-2">പേര്</th>
                             ${topics.map(t => {
                                 const passMark = Math.ceil(Number(t.maxMarks) * (Number(cls.passPercentage) || 36) / 100);
                                 return `
@@ -217,8 +234,8 @@ class MarksheetView {
                                         const colorClass = scoreObj.colorClass || '';
                                         const passMark = Math.ceil(Number(t.maxMarks) * (Number(cls.passPercentage) || 36) / 100);
                                         const tooltip = scoreObj.value !== '' 
-                                            ? `${t.name}: ${scoreObj.value}/${t.maxMarks} (${scoreObj.percentage}%) - ${scoreObj.isPassed ? 'പാസ്സ്' : 'തോറ്റു'}` 
-                                            : `${t.name} (Max: ${t.maxMarks}, Min: ${passMark})`;
+                                            ? `${t.name}: ${scoreObj.value}/${t.maxMarks} (${scoreObj.percentage}%)` 
+                                            : `${t.name} (${t.maxMarks})`;
                                         return `
                                             <td class="td-mark-input">
                                                 <input 
@@ -250,13 +267,28 @@ class MarksheetView {
                                         ${res.hasAnyMark ? `<span class="badge ${res.statusClass}">${res.status === 'Pass' ? 'പാസ്സ്' : 'തോറ്റു'}</span>` : '-'}
                                     </td>
                                     <td class="td-action">
-                                        <button class="btn-icon btn-del-student" data-id="${st.id}" title="വിദ്യാർത്ഥിയെ നീക്കം ചെയ്യുക">&times;</button>
+                                        <button class="btn-icon btn-del-student" data-id="${st.id}" title="നീക്കം ചെയ്യുക">&times;</button>
                                     </td>
                                 </tr>
                             `;
                         }).join('')}
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Print-Only Footer Block (Signatures for A4 Sheet Printing) -->
+            <div class="print-only-footer">
+                <div class="print-sig-block">
+                    <div class="print-sig-line"></div>
+                    <span>ക്ലാസ് അധ്യാപകന്റെ ഒപ്പ്</span>
+                </div>
+                <div class="print-sig-block">
+                    <span>തീയതി: ${new Date().toLocaleDateString('en-GB')}</span>
+                </div>
+                <div class="print-sig-block">
+                    <div class="print-sig-line"></div>
+                    <span>പ്രധാനാധ്യാപകന്റെ ഒപ്പ്</span>
+                </div>
             </div>
 
             ${this._renderQuickFooter()}
@@ -286,7 +318,7 @@ class MarksheetView {
                                         <span class="roll-badge">${st.rollNo || (rowIdx + 1)}</span>
                                         <div>
                                             <h4 class="card-student-name">${st.name}</h4>
-                                            <span class="student-gender-tag ${st.gender}">${st.gender === 'girl' ? '👧 പെൺകുട്ടി' : '👦 ആൺകുട്ടി'}</span>
+                                            <span class="student-gender-tag ${st.gender}">${st.gender === 'girl' ? 'പെൺകുട്ടി' : 'ആൺകുട്ടി'}</span>
                                         </div>
                                     </div>
                                     <div class="card-header-right">
@@ -330,7 +362,7 @@ class MarksheetView {
 
                                 <div class="card-summary-bar">
                                     <div class="card-summary-item">
-                                        <span class="summary-label">ആകെ മാർക്ക്</span>
+                                        <span class="summary-label">ആകെ</span>
                                         <span class="summary-val font-mono" id="card-total-${st.id}">
                                             ${res.hasAnyMark ? `${res.totalScored}/${res.totalMax}` : '-'}
                                         </span>
@@ -357,21 +389,16 @@ class MarksheetView {
             <div class="sheet-quick-footer">
                 <div class="marks-legend-strip">
                     <span class="legend-badge legend-green">
-                        <span class="legend-dot green"></span> 90%+ (പച്ച)
+                        <span class="legend-dot green"></span> 90%+
                     </span>
                     <span class="legend-badge legend-blue">
-                        <span class="legend-dot blue"></span> 50% - 89% (നീല)
+                        <span class="legend-dot blue"></span> 50% - 89%
                     </span>
                     <span class="legend-badge legend-amber">
-                        <span class="legend-dot amber"></span> 36% - 49% (പാസ്സ്)
+                        <span class="legend-dot amber"></span> 36% - 49%
                     </span>
                     <span class="legend-badge legend-red">
-                        <span class="legend-dot red"></span> 36% ൽ താഴെ / Ab (തോറ്റു)
-                    </span>
-                </div>
-                <div class="sheet-rules-hint">
-                    <span class="text-muted font-sm">
-                        💡 ഏതെങ്കിലും ഒരു വിഷയത്തിൽ 36% ൽ താഴെ മാർക്ക് വന്നാൽ (അല്ലെങ്കിൽ Absent ആയാൽ) വിദ്യാർത്ഥി ആകെ ഫലത്തിൽ <strong>'തോറ്റു' (F)</strong> ആയി കണക്കാക്കും.
+                        <span class="legend-dot red"></span> &lt;36% / Ab
                     </span>
                 </div>
             </div>
@@ -382,13 +409,11 @@ class MarksheetView {
         const genderLabel = this.activeTab === 'boys' ? 'ആൺകുട്ടികൾ' : (this.activeTab === 'girls' ? 'പെൺകുട്ടികൾ' : 'വിദ്യാർത്ഥികൾ');
         return `
             <div class="empty-state">
-                <div class="empty-illustration">📝</div>
-                <h4>${genderLabel} ആരെയും ചേർത്തിട്ടില്ല</h4>
-                <p>വിദ്യാർത്ഥികളെ ചേർക്കാൻ താഴെയുള്ള ഓപ്ഷനുകൾ ഉപയോഗിക്കുക:</p>
+                <h4>${genderLabel} ചേർത്തിട്ടില്ല</h4>
                 <div class="empty-actions-row">
-                    <button class="btn btn-primary btn-sm" id="btn-empty-add-st">＋ പുതിയ വിദ്യാർത്ഥി</button>
-                    <button class="btn btn-outline btn-sm" id="btn-empty-excel">📥 Excel ഫയൽ അപ്‌ലോഡ്</button>
-                    <button class="btn btn-outline btn-sm" id="btn-empty-ai">📸 AI ഫോട്ടോ സ്കാൻ</button>
+                    <button class="btn btn-primary btn-sm" id="btn-empty-add-st">പുതിയ വിദ്യാർത്ഥി</button>
+                    <button class="btn btn-outline btn-sm" id="btn-empty-excel">Excel അപ്‌ലോഡ്</button>
+                    <button class="btn btn-outline btn-sm" id="btn-empty-ai">AI സ്കാൻ</button>
                 </div>
             </div>
         `;
@@ -397,41 +422,46 @@ class MarksheetView {
     _renderAnalyticsTab(stats, cls) {
         return `
             <div class="analytics-container">
+                <div class="analytics-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4 style="margin: 0;">റിസൾട്ട് അവലോകനം</h4>
+                    <button class="btn btn-primary btn-sm btn-print" id="btn-print-analytics">
+                        പ്രിന്റ് ചെയ്യുക
+                    </button>
+                </div>
+
                 <div class="analytics-cards-grid">
                     <div class="stat-card">
                         <div class="stat-label">ആകെ വിദ്യാർത്ഥികൾ</div>
                         <div class="stat-value">${stats.totalStudents}</div>
-                        <div class="stat-sub">👦 ${stats.boysCount} ആൺ • 👧 ${stats.girlsCount} പെൺ</div>
+                        <div class="stat-sub">${stats.boysCount} ആൺ • ${stats.girlsCount} പെൺ</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">പാസ്സ് ശതമാനം</div>
                         <div class="stat-value text-success">${stats.passRate}%</div>
-                        <div class="stat-sub">${stats.passedCount} പാസ്സായി • ${stats.failedCount} തോറ്റു</div>
+                        <div class="stat-sub">${stats.passedCount} പാസ്സ് • ${stats.failedCount} തോറ്റു</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">ശരാശരി മാർക്ക്</div>
                         <div class="stat-value font-mono">${stats.avgScore} <span class="font-sm text-muted">/ ${stats.totalMaxMarks}</span></div>
-                        <div class="stat-sub">ക്ലാസ് ശരാശരി: ${stats.avgPercentage}%</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">ആകെ വിഷയങ്ങൾ</div>
+                        <div class="stat-label">വിഷയങ്ങൾ</div>
                         <div class="stat-value">${stats.topicsCount}</div>
-                        <div class="stat-sub">പാസ്സ് മാർക്ക്: ${cls.passPercentage || 36}%</div>
                     </div>
                 </div>
 
                 <div class="analytics-table-card">
-                    <h4 class="card-title">വിഷയം തിരിച്ചുള്ള വിശകലനം (Topic Breakdown)</h4>
+                    <h4 class="card-title">വിഷയം തിരിച്ചുള്ള ഫലം</h4>
                     <div class="table-responsive-container">
                         <table class="marksheet-table stats-table">
                             <thead>
                                 <tr>
                                     <th>വിഷയം</th>
-                                    <th>പരമാവധി മാർക്ക്</th>
-                                    <th>പാസ്സ് മാർക്ക്</th>
-                                    <th>ശരാശരി മാർക്ക്</th>
-                                    <th>ഏറ്റവും ഉയർന്ന മാർക്ക്</th>
-                                    <th>മാർക്ക് നൽകിയവർ</th>
+                                    <th>പരമാവധി</th>
+                                    <th>പാസ്സ്</th>
+                                    <th>ശരാശരി</th>
+                                    <th>ഉയർന്നത്</th>
+                                    <th>എണ്ണം</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -468,45 +498,34 @@ class MarksheetView {
             <div class="modal-backdrop" id="excel-modal-backdrop">
                 <div class="modal-box modal-lg mobile-sheet">
                     <div class="modal-header">
-                        <div>
-                            <h3 class="modal-title">📥 എക്സൽ / CSV ഇംപോർട്ട്</h3>
-                            <span class="field-hint">ഒറ്റ ക്ലിക്കിൽ എല്ലാ കുട്ടികളുടെയും മാർക്കുകൾ എക്സലിൽ നിന്ന് നേരിട്ട് ചേർക്കുക</span>
-                        </div>
+                        <h3 class="modal-title">Excel / CSV ഇംപോർട്ട്</h3>
                         <button class="modal-close" id="btn-close-excel-modal">&times;</button>
                     </div>
 
                     <div class="modal-body">
-                        <!-- Top Instructions & Sample Downloader -->
                         <div class="excel-import-top">
-                            <p class="font-sm text-secondary">
-                                റോൾ നമ്പർ, പേര്, ലിംഗം, വിഷയങ്ങളുടെ പേരുകൾ എന്നിവ ഉള്ള ഏത് Excel (.xlsx, .xls) അല്ലെങ്കിൽ .csv ഫയലും നൽകാം.
-                            </p>
                             <button type="button" class="btn btn-outline btn-sm" id="btn-download-sample-excel">
-                                📄 മാതൃക Excel ഡൗൺലോഡ് (Template)
+                                മാതൃക ഫയൽ (Template)
                             </button>
                         </div>
 
                         <!-- Upload Dropzone Area -->
                         <div class="upload-dropzone" id="excel-dropzone">
-                            <div class="dropzone-icon">📊</div>
-                            <h4 class="dropzone-title">Excel ഫയൽ ഇവിടെ ഡ്രോപ്പ് ചെയ്യുക</h4>
-                            <p class="dropzone-sub">അല്ലെങ്കിൽ ഫോണിൽ നിന്നോ കമ്പ്യൂട്ടറിൽ നിന്നോ തിരഞ്ഞെടുക്കുക</p>
+                            <h4 class="dropzone-title">Excel ഫയൽ ഇവിടെ ചേർക്കുക</h4>
                             <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="display:none;">
                             <button type="button" class="btn btn-primary btn-sm" id="btn-browse-excel">
                                 ഫയൽ തിരഞ്ഞെടുക്കുക
                             </button>
                         </div>
 
-                        <!-- Parsed Preview Area (Hidden initially) -->
-                        <div id="excel-preview-container" style="display: none; margin-top: 1.25rem;">
-                            <!-- Filled dynamically via _renderExcelPreview -->
-                        </div>
+                        <!-- Parsed Preview Area -->
+                        <div id="excel-preview-container" style="display: none; margin-top: 1.25rem;"></div>
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" id="btn-cancel-excel">റദ്ദാക്കുക</button>
                         <button type="button" class="btn btn-primary" id="btn-confirm-import-excel" disabled>
-                            ⚡ എല്ലാം മാർക്ക്ഷീറ്റിലേക്ക് ചേർക്കുക
+                            മാർക്ക്ഷീറ്റിലേക്ക് ചേർക്കുക
                         </button>
                     </div>
                 </div>
@@ -517,7 +536,6 @@ class MarksheetView {
         document.getElementById('btn-close-excel-modal').addEventListener('click', closeModal);
         document.getElementById('btn-cancel-excel').addEventListener('click', closeModal);
 
-        // Download Template
         document.getElementById('btn-download-sample-excel').addEventListener('click', () => {
             this._downloadExcelTemplate(cls);
         });
@@ -531,7 +549,6 @@ class MarksheetView {
             if (e.target !== browseBtn) fileInput.click();
         });
 
-        // Drag & drop
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropzone.classList.add('dragover');
@@ -603,7 +620,6 @@ class MarksheetView {
                     return;
                 }
 
-                // Detect header row
                 let headerRowIndex = 0;
                 for (let i = 0; i < Math.min(rawRows.length, 6); i++) {
                     const rowStr = rawRows[i].join(' ').toLowerCase();
@@ -688,7 +704,7 @@ class MarksheetView {
                 this._renderExcelPreview(this.parsedExcelData);
 
             } catch (err) {
-                alert('എക്സൽ ഫയൽ വായിക്കുന്നതിൽ പിഴവ് സംഭവിച്ചു: ' + err.message);
+                alert('എക്സൽ വായിക്കുന്നതിൽ പിഴവ് സംഭവിച്ചു: ' + err.message);
             }
         };
         reader.readAsArrayBuffer(file);
@@ -704,8 +720,8 @@ class MarksheetView {
 
         previewContainer.innerHTML = `
             <div class="preview-badge-bar">
-                <span class="preview-count-chip">👥 ${students.length} വിദ്യാർത്ഥികൾ കണ്ടെത്തി</span>
-                <span class="preview-count-chip">📚 ${topics.length} വിഷയങ്ങൾ</span>
+                <span class="preview-count-chip">${students.length} കുട്ടികൾ</span>
+                <span class="preview-count-chip">${topics.length} വിഷയങ്ങൾ</span>
             </div>
 
             <div class="table-responsive-container preview-table-wrap">
@@ -733,13 +749,12 @@ class MarksheetView {
                     </tbody>
                 </table>
             </div>
-            ${students.length > 5 ? `<p class="field-hint text-center mt-1">...കൂടാതെ ${students.length - 5} കുട്ടികൾ കൂടിയുണ്ട്</p>` : ''}
         `;
 
         confirmBtn.onclick = () => {
             const res = window.marksheetController.importExcelData(this.currentClass.id, this.parsedExcelData);
             if (res && res.success) {
-                alert(`✅ വിജയകരമായി ഇംപോർട്ട് ചെയ്തു!\n• ${res.addedCount} പുതിയ കുട്ടികളെ ചേർത്തു.\n• ${res.updatedCount} പേരുടെ മാർക്കുകൾ പുതുക്കി.`);
+                alert(`വിജയകരമായി ഇംപോർട്ട് ചെയ്തു!\n• ${res.addedCount} പുതിയ കുട്ടികളെ ചേർത്തു.\n• ${res.updatedCount} പേരുടെ മാർക്കുകൾ പുതുക്കി.`);
                 document.getElementById('modal-container').innerHTML = '';
             }
         };
@@ -759,72 +774,59 @@ class MarksheetView {
             <div class="modal-backdrop" id="ai-modal-backdrop">
                 <div class="modal-box modal-lg mobile-sheet">
                     <div class="modal-header">
-                        <div>
-                            <h3 class="modal-title">📸 Gemini Flash AI ഫോട്ടോ സ്കാനർ</h3>
-                            <span class="field-hint">മാർക്ക്ഷീറ്റ് അല്ലെങ്കിൽ പേപ്പർ ഫോട്ടോ എടുത്ത് കുട്ടികളുടെ വിവരങ്ങൾ സ്വയം വേർതിരിച്ചെടുക്കുക</span>
-                        </div>
+                        <h3 class="modal-title">Gemini AI ഫോട്ടോ സ്കാനർ</h3>
                         <button class="modal-close" id="btn-close-ai-modal">&times;</button>
                     </div>
 
                     <div class="modal-body">
                         <!-- Gemini API Key configuration -->
                         <div class="form-group mb-3">
-                            <div class="api-key-header">
-                                <label class="form-label mb-0">🔑 Gemini API Key</label>
-                                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="font-sm text-primary link-external">
-                                    സൗജന്യ API Key എടുക്കുക ↗
-                                </a>
-                            </div>
+                            <label class="form-label mb-1">Gemini API Key</label>
                             <input 
                                 type="password" 
                                 id="input-gemini-key" 
                                 class="form-control font-mono" 
-                                placeholder="AIzaSy..." 
+                                placeholder="API Key" 
                                 value="${savedKey}"
                             >
-                            <span class="field-hint">നിങ്ങളുടെ API കീ നിങ്ങളുടെ ബ്രൗസറിൽ മാത്രമേ സൂക്ഷിക്കപ്പെടൂ. തികച്ചും സുരക്ഷിതമാണ്.</span>
                         </div>
 
                         <!-- Image Capture / File Picker -->
                         <div class="ai-capture-section">
                             <div class="capture-buttons-row">
                                 <label class="btn btn-primary btn-sm flex-1 cursor-pointer">
-                                    📷 ക്യാമറ വഴി ഫോട്ടോ എടുക്കുക
+                                    ക്യാമറ
                                     <input type="file" id="ai-camera-input" accept="image/*" capture="environment" style="display:none;">
                                 </label>
                                 <label class="btn btn-outline btn-sm flex-1 cursor-pointer">
-                                    📁 ഗാലറിയിൽ നിന്ന് തിരഞ്ഞെടുക്കുക
+                                    ഗാലറി
                                     <input type="file" id="ai-file-input" accept="image/*" style="display:none;">
                                 </label>
                             </div>
 
-                            <!-- Preview of uploaded photo -->
                             <div id="ai-photo-preview-wrap" style="display:none;" class="photo-preview-card mt-3">
                                 <img id="ai-preview-img" src="" alt="Marksheet preview" class="preview-img-tag">
                                 <div class="photo-meta-bar">
                                     <span id="photo-file-name" class="font-sm font-bold"></span>
                                     <button type="button" class="btn btn-primary btn-sm" id="btn-start-gemini-ocr">
-                                        ✨ Gemini AI വഴി എക്സ്ട്രാക്റ്റ് ചെയ്യുക
+                                        ഡാറ്റ എക്സ്ട്രാക്റ്റ് ചെയ്യുക
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Animated Loading Indicator -->
                         <div id="ai-loading-box" style="display:none;" class="ai-loading-box">
                             <div class="ai-pulse-spinner"></div>
-                            <h4 class="mt-2">ജെമിനി ഫ്ലാഷ് AI ചിത്രം പരിശോധിക്കുന്നു...</h4>
-                            <p class="font-sm text-muted">കുട്ടികളുടെ പേരും മാർക്കുകളും തരംതിരിക്കുന്നു, ദയവായി കാത്തിരിക്കുക.</p>
+                            <h4 class="mt-2">പരിശോധിക്കുന്നു...</h4>
                         </div>
 
-                        <!-- Extraction Results Preview -->
                         <div id="ai-results-wrap" style="display:none; margin-top:1.25rem;"></div>
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" id="btn-cancel-ai">റദ്ദാക്കുക</button>
                         <button type="button" class="btn btn-primary" id="btn-confirm-import-ai" disabled>
-                            ⚡ മാർക്ക്ഷീറ്റിലേക്ക് ചേർക്കുക
+                            മാർക്ക്ഷീറ്റിലേക്ക് ചേർക്കുക
                         </button>
                     </div>
                 </div>
@@ -867,14 +869,14 @@ class MarksheetView {
         startBtn.addEventListener('click', async () => {
             const apiKey = keyInput.value.trim();
             if (!apiKey) {
-                alert('ദയവായി Gemini API Key നൽകുക. മുകളിലുള്ള ലിങ്ക് വഴി സൗജന്യമായി കീ എടുക്കാം.');
+                alert('Gemini API Key നൽകുക.');
                 keyInput.focus();
                 return;
             }
             localStorage.setItem('marksheet_gemini_key', apiKey);
 
             if (!selectedBase64) {
-                alert('ദയവായി ഒരു ചിത്രം തിരഞ്ഞെടുക്കുക.');
+                alert('ഒരു ചിത്രം തിരഞ്ഞെടുക്കുക.');
                 return;
             }
 
@@ -891,7 +893,7 @@ class MarksheetView {
                 loadingBox.style.display = 'none';
 
                 if (!Array.isArray(extractedStudents) || extractedStudents.length === 0) {
-                    alert('ചിത്രത്തിൽ നിന്ന് വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ വേർതിരിച്ചെടുക്കാൻ കഴിഞ്ഞില്ല. ചിത്രം കൂടുതൽ വ്യക്തതയോടെ വീണ്ടും എടുക്കുക.');
+                    alert('ചിത്രത്തിൽ നിന്ന് വിവരങ്ങൾ ലഭ്യമായില്ല. വ്യക്തതയുള്ള ചിത്രം നൽകുക.');
                     return;
                 }
 
@@ -899,13 +901,12 @@ class MarksheetView {
                 this._renderGeminiPreview(extractedStudents);
             } catch (err) {
                 loadingBox.style.display = 'none';
-                alert('AI എക്സ്ട്രാക്ഷനിൽ പിഴവ് സംഭവിച്ചു: ' + err.message);
+                alert('പിഴവ് സംഭവിച്ചു: ' + err.message);
             }
         });
     }
 
     async _runGeminiExtraction(imageBase64, mimeType, apiKey) {
-        // Try backend proxy first if available
         try {
             const res = await fetch('/api/gemini-extract', {
                 method: 'POST',
@@ -917,12 +918,11 @@ class MarksheetView {
                 return json.students;
             }
         } catch (e) {
-            console.warn('Backend proxy failed, using direct client call...', e);
+            console.warn('Backend proxy fallback...', e);
         }
 
-        // Direct browser call to Google Generative Language REST API
         const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
-        const prompt = `You are an expert OCR marksheet parser for madrasas and schools. Analyze this marksheet / student list image carefully. Extract all students and their subject marks into a JSON array with this exact structure: [{"rollNo": "1", "name": "Student Name (in Malayalam or English)", "gender": "boy", "marks": {"Subject1": 45, "Subject2": 38}}]. If only student names are listed without marks, leave marks as {}. Return ONLY the valid JSON array without markdown backticks.`;
+        const prompt = `Extract all students and their subject marks into a JSON array: [{"rollNo": "1", "name": "Student Name", "gender": "boy", "marks": {"Subject1": 45}}]. Return ONLY the valid JSON array without markdown backticks.`;
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         const payload = {
@@ -970,7 +970,7 @@ class MarksheetView {
 
         resultsWrap.innerHTML = `
             <div class="preview-badge-bar">
-                <span class="preview-count-chip text-success">✨ ${studentsList.length} വിദ്യാർത്ഥികളുടെ വിവരങ്ങൾ AI കണ്ടെത്തി</span>
+                <span class="preview-count-chip text-success">${studentsList.length} കുട്ടികൾ</span>
             </div>
 
             <div class="table-responsive-container preview-table-wrap">
@@ -992,7 +992,7 @@ class MarksheetView {
                                 <td class="font-mono">
                                     ${st.marks && Object.keys(st.marks).length > 0 
                                         ? Object.entries(st.marks).map(([k, v]) => `${k}: ${v}`).join(', ') 
-                                        : '<span class="text-muted">(മാർക്കുകളില്ല)</span>'}
+                                        : '<span class="text-muted">-</span>'}
                                 </td>
                             </tr>
                         `).join('')}
@@ -1004,7 +1004,7 @@ class MarksheetView {
         confirmBtn.onclick = () => {
             const res = window.marksheetController.importGeminiData(this.currentClass.id, this.parsedGeminiData);
             if (res && res.success) {
-                alert(`✅ AI ഡാറ്റ വിജയകരമായി ചേർത്തു!\n• ${res.addedCount} പുതിയ കുട്ടികളെ ചേർത്തു.\n• ${res.updatedCount} കുട്ടികളുടെ മാർക്കുകൾ പുതുക്കി.`);
+                alert(`AI ഡാറ്റ വിജയകരമായി ചേർത്തു!\n• ${res.addedCount} പുതിയ കുട്ടികളെ ചേർത്തു.\n• ${res.updatedCount} പേരുടെ മാർക്കുകൾ പുതുക്കി.`);
                 document.getElementById('modal-container').innerHTML = '';
             }
         };
@@ -1035,20 +1035,20 @@ class MarksheetView {
                                     <input type="text" id="modal-roll" class="form-control" value="${nextRoll}" required>
                                 </div>
                                 <div class="form-group flex-1">
-                                    <label class="form-label">വിദ്യാർത്ഥിയുടെ പേര്</label>
-                                    <input type="text" id="modal-name" class="form-control" placeholder="മുഹമ്മദ് റയ്യാൻ" required autofocus>
+                                    <label class="form-label">പേര്</label>
+                                    <input type="text" id="modal-name" class="form-control" placeholder="പേര്" required autofocus>
                                 </div>
                             </div>
                             <div class="form-group mt-2">
-                                <label class="form-label">ലിംഗം (Gender)</label>
+                                <label class="form-label">ലിംഗം</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
                                         <input type="radio" name="st-gender" value="boy" ${this.activeTab !== 'girls' ? 'checked' : ''}>
-                                        <span>👦 ആൺകുട്ടി (Boy)</span>
+                                        <span>ആൺകുട്ടി (Boy)</span>
                                     </label>
                                     <label class="radio-label">
                                         <input type="radio" name="st-gender" value="girl" ${this.activeTab === 'girls' ? 'checked' : ''}>
-                                        <span>👧 പെൺകുട്ടി (Girl)</span>
+                                        <span>പെൺകുട്ടി (Girl)</span>
                                     </label>
                                 </div>
                             </div>
@@ -1090,47 +1090,27 @@ class MarksheetView {
             <div class="modal-backdrop" id="topics-modal-backdrop">
                 <div class="modal-box modal-lg mobile-sheet">
                     <div class="modal-header">
-                        <h3 class="modal-title">വിഷയങ്ങൾ ക്രമീകരിക്കുക (Manage Topics)</h3>
+                        <h3 class="modal-title">വിഷയങ്ങൾ ക്രമീകരിക്കുക</h3>
                         <button class="modal-close" id="btn-close-topics-modal">&times;</button>
                     </div>
                     <form id="manage-topics-form">
                         <div class="modal-body">
-                            <span class="field-hint mb-3" style="display:block;">
-                                വിഷയങ്ങളുടെ പേരും പരമാവധി മാർക്കും (Max Mark) ക്രമീകരിക്കുക.
-                            </span>
-
-                            <div class="topic-rows-container" id="modal-topics-list">
-                                ${topics.map(t => `
-                                    <div class="topic-input-row" data-topic-id="${t.id}">
-                                        <input 
-                                            type="text" 
-                                            class="form-control topic-name-input" 
-                                            placeholder="വിഷയം (Subject Name)" 
-                                            value="${t.name}" 
-                                            required
-                                        >
-                                        <input 
-                                            type="number" 
-                                            class="form-control topic-max-input" 
-                                            placeholder="Max Mark" 
-                                            value="${t.maxMarks}" 
-                                            min="1" 
-                                            max="1000" 
-                                            style="max-width: 130px;" 
-                                            required
-                                        >
-                                        <button type="button" class="btn-icon btn-remove-topic" title="വിഷയം നീക്കുക">&times;</button>
+                            <div id="modal-topics-list">
+                                ${topics.map((t, idx) => `
+                                    <div class="topic-manage-row" data-id="${t.id}" data-index="${idx}">
+                                        <input type="text" class="form-control topic-edit-name" value="${t.name}" placeholder="വിഷയം" required>
+                                        <input type="number" class="form-control topic-edit-max" value="${t.maxMarks || 50}" placeholder="മാർക്ക്" min="1" max="1000" style="max-width: 100px;" required>
+                                        <button type="button" class="btn-icon btn-del-topic" data-id="${t.id}" title="നീക്കം ചെയ്യുക">&times;</button>
                                     </div>
                                 `).join('')}
                             </div>
-
-                            <button type="button" class="btn btn-outline btn-sm mt-3" id="btn-add-more-topic">
-                                ＋ മറ്റൊരു വിഷയം ചേർക്കുക
+                            <button type="button" class="btn btn-outline btn-sm mt-2" id="btn-modal-add-topic">
+                                വിഷയം ചേർക്കുക
                             </button>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-ghost" id="btn-cancel-topics">റദ്ദാക്കുക</button>
-                            <button type="submit" class="btn btn-primary">സൂക്ഷിക്കുക</button>
+                            <button type="submit" class="btn btn-primary">സേവ് ചെയ്യുക</button>
                         </div>
                     </form>
                 </div>
@@ -1142,24 +1122,25 @@ class MarksheetView {
         document.getElementById('btn-cancel-topics').addEventListener('click', closeModal);
 
         const listContainer = document.getElementById('modal-topics-list');
-        document.getElementById('btn-add-more-topic').addEventListener('click', () => {
+        document.getElementById('btn-modal-add-topic').addEventListener('click', () => {
             const row = document.createElement('div');
-            row.className = 'topic-input-row';
+            row.className = 'topic-manage-row';
             row.innerHTML = `
-                <input type="text" class="form-control topic-name-input" placeholder="വിഷയം (Subject Name)" required>
-                <input type="number" class="form-control topic-max-input" placeholder="Max" value="50" min="1" max="1000" style="max-width:130px;" required>
-                <button type="button" class="btn-icon btn-remove-topic" title="വിഷയം നീക്കുക">&times;</button>
+                <input type="text" class="form-control topic-edit-name" placeholder="വിഷയം" required>
+                <input type="number" class="form-control topic-edit-max" value="50" placeholder="മാർക്ക്" min="1" max="1000" style="max-width: 100px;" required>
+                <button type="button" class="btn-icon btn-del-topic" title="നീക്കം ചെയ്യുക">&times;</button>
             `;
             listContainer.appendChild(row);
-            row.querySelector('.btn-remove-topic').addEventListener('click', () => row.remove());
+            row.querySelector('.btn-del-topic').addEventListener('click', () => row.remove());
         });
 
-        listContainer.querySelectorAll('.btn-remove-topic').forEach(btn => {
+        listContainer.querySelectorAll('.btn-del-topic').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                const row = e.target.closest('.topic-manage-row');
                 if (listContainer.children.length > 1) {
-                    e.target.closest('.topic-input-row').remove();
+                    row.remove();
                 } else {
-                    alert('കുറഞ്ഞത് ഒരു വിഷയമെങ്കിലും ഉണ്ടായിരിക്കണം.');
+                    alert('കുറഞ്ഞത് ഒരു വിഷയമെങ്കിലും ആവശ്യമാണ്.');
                 }
             });
         });
@@ -1167,14 +1148,17 @@ class MarksheetView {
         document.getElementById('manage-topics-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const updatedTopics = [];
-            listContainer.querySelectorAll('.topic-input-row').forEach((row, i) => {
-                const id = row.getAttribute('data-topic-id') || ('top_' + Date.now() + '_' + i);
-                const name = row.querySelector('.topic-name-input').value.trim();
-                const maxMarks = Number(row.querySelector('.topic-max-input').value) || 50;
-                if (name) {
-                    updatedTopics.push({ id, name, maxMarks });
-                }
+            listContainer.querySelectorAll('.topic-manage-row').forEach((row, i) => {
+                const name = row.querySelector('.topic-edit-name').value.trim();
+                const max = Number(row.querySelector('.topic-edit-max').value) || 50;
+                const existingId = row.getAttribute('data-id') || ('top_' + Date.now() + '_' + i);
+                if (name) updatedTopics.push({ id: existingId, name, maxMarks: max });
             });
+
+            if (updatedTopics.length === 0) {
+                alert('കുറഞ്ഞത് ഒരു വിഷയം നൽകുക.');
+                return;
+            }
 
             window.marksheetController.updateTopics(cls.id, updatedTopics);
             closeModal();
@@ -1182,22 +1166,24 @@ class MarksheetView {
     }
 
     _bindEvents() {
-        // Back to dashboard
+        // Back to Dashboard
         const backBtn = document.getElementById('btn-back-dashboard');
         if (backBtn) {
-            backBtn.addEventListener('click', () => window.classController.showDashboard());
+            backBtn.addEventListener('click', () => {
+                window.classController.showDashboard();
+            });
         }
 
-        // Tabs
+        // Sheet Tabs (Boys, Girls, All, Analytics)
         document.querySelectorAll('.sheet-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 const targetTab = e.currentTarget.getAttribute('data-tab');
                 this.activeTab = targetTab;
-                this.render(this.currentClass, targetTab);
+                this.render(this.currentClass);
             });
         });
 
-        // View Mode Switcher (Table vs Touch Cards)
+        // View Mode Switcher
         const modeTable = document.getElementById('btn-mode-table');
         const modeCards = document.getElementById('btn-mode-cards');
         if (modeTable) {
@@ -1212,6 +1198,18 @@ class MarksheetView {
                 this.render(this.currentClass);
             });
         }
+
+        // Print Buttons
+        const printNav = document.getElementById('btn-print-nav');
+        const printToolbar = document.getElementById('btn-print-toolbar');
+        const mPrint = document.getElementById('m-btn-print');
+        const printAnalytics = document.getElementById('btn-print-analytics');
+
+        const doPrint = () => window.print();
+        if (printNav) printNav.addEventListener('click', doPrint);
+        if (printToolbar) printToolbar.addEventListener('click', doPrint);
+        if (mPrint) mPrint.addEventListener('click', doPrint);
+        if (printAnalytics) printAnalytics.addEventListener('click', doPrint);
 
         // Excel Import Button
         const excelBtn = document.getElementById('btn-import-excel');
@@ -1263,7 +1261,7 @@ class MarksheetView {
         document.querySelectorAll('.btn-del-student').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const studentId = e.currentTarget.getAttribute('data-id');
-                if (confirm('ഈ കുട്ടിയെ മാർക്ക്ഷീറ്റിൽ നിന്നും ഒഴിവാക്കണോ?')) {
+                if (confirm('ഈ കുട്ടിയെ ഒഴിവാക്കണോ?')) {
                     window.marksheetController.deleteStudent(this.currentClass.id, studentId);
                 }
             });
@@ -1314,7 +1312,7 @@ class MarksheetView {
         inputElem.classList.remove('mark-fail', 'mark-pass', 'mark-good', 'mark-excellent');
         if (rawVal === 'Ab') {
             inputElem.classList.add('mark-fail');
-            inputElem.title = `Ab (Absent - തോറ്റു)`;
+            inputElem.title = `Ab (തോറ്റു)`;
         } else if (rawVal !== '') {
             const num = Number(rawVal);
             const pct = maxMarks > 0 ? (num / maxMarks) * 100 : 0;
@@ -1328,7 +1326,7 @@ class MarksheetView {
             } else {
                 inputElem.classList.add('mark-fail');
             }
-            inputElem.title = `${rawVal}/${maxMarks} (${roundedPct}%) - ${roundedPct >= passPercentage ? 'പാസ്സ്' : 'തോറ്റു'}`;
+            inputElem.title = `${rawVal}/${maxMarks} (${roundedPct}%)`;
         } else {
             inputElem.title = '';
         }
@@ -1349,7 +1347,7 @@ class MarksheetView {
 
         const autoSave = document.getElementById('autosave-status');
         if (autoSave) {
-            autoSave.innerHTML = `<span class="save-dot saving"></span> സൂക്ഷിക്കുന്നു...`;
+            autoSave.innerHTML = `<span class="save-dot saving"></span> സേവ് ചെയ്യുന്നു...`;
             setTimeout(() => {
                 autoSave.innerHTML = `<span class="save-dot"></span> സേവ് ആയി`;
             }, 300);
